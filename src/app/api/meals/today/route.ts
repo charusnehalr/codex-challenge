@@ -20,7 +20,21 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
+    const targets = { calories: 1800, proteinG: 90, carbsG: 200, fatG: 55, fiberG: 25 };
+    const summary = { calories: 0, proteinG: 0, carbsG: 0, fatG: 0, fiberG: 0, mealTypeCounts: {} };
+
+    return NextResponse.json({
+      logs: [],
+      summary,
+      targets,
+      remaining: targets,
+      waterMl: 0,
+      waterTargetMl: 2500,
+      dietPreferences: null,
+      healthContext: null,
+      fastingPreferences: null,
+      rules: {},
+    });
   }
 
   const ctx = await getUserContext(user.id);

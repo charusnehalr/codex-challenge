@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button, Card, Chip, Eyebrow } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { useToastStore } from "@/store/toast.store";
 
 export function WorkoutTodayCard({
@@ -16,6 +17,10 @@ export function WorkoutTodayCard({
   onChanged: () => void;
 }) {
   async function markComplete() {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     const response = await fetch("/api/workout/complete", { method: "POST" });
     if (!response.ok) {
       useToastStore.getState().addToast("Something went wrong. Try again.", "error");

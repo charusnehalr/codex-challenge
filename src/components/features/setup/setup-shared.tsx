@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { Button, Card, Checkbox, Chip } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { cn } from "@/lib/utils";
 import { useToastStore } from "@/store/toast.store";
 
@@ -33,6 +34,11 @@ export type Option = {
 };
 
 export async function saveSetupSection(section: SetupSectionKey, data: Record<string, unknown>) {
+  const authenticated = await ensureAuthenticated("signup");
+  if (!authenticated) {
+    throw new Error("");
+  }
+
   const response = await fetch("/api/setup", {
     method: "POST",
     headers: {

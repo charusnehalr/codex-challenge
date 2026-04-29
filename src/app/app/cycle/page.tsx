@@ -18,6 +18,7 @@ import {
   SkeletonCard,
   Toggle,
 } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { cn } from "@/lib/utils";
 
 type CycleLog = {
@@ -191,6 +192,10 @@ function TodayLogForm({ todayLog, onSaved }: { todayLog: CycleLog | null; onSave
   }, [todayLog]);
 
   async function saveLog() {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     setSaving(true);
     await fetch("/api/cycle/log", {
       method: "POST",

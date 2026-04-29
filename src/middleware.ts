@@ -26,13 +26,7 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session && request.nextUrl.pathname.startsWith("/app")) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  await supabase.auth.getSession();
 
   return response;
 }

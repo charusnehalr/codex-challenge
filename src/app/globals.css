@@ -31,9 +31,118 @@ html,
 body {
   min-height: 100%;
   background: #FAF6EF;
+  scroll-behavior: smooth;
 }
 
 body {
   color: var(--color-ink);
   font-family: "Geist", sans-serif;
+}
+
+@media (pointer: fine) {
+  html,
+  body,
+  * {
+    cursor: none !important;
+  }
+}
+
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: 150ms;
+}
+
+*:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(184 112 79 / 0.4), 0 0 0 4px var(--color-paper);
+}
+
+.custom-cursor-dot,
+.custom-cursor-ring {
+  transition: transform 0.12s ease-out, background-color 0.12s ease-out, scale 0.12s ease-out;
+}
+
+body.cursor-hover .custom-cursor-dot {
+  scale: 2;
+}
+
+body.cursor-hover .custom-cursor-ring {
+  scale: 1.5;
+  background: rgb(184 112 79 / 0.1);
+}
+
+.bg-shimmer {
+  background: linear-gradient(90deg, #EFE7DA 25%, #F5EFE6 50%, #EFE7DA 75%);
+  background-size: 200% 100%;
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-star {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(12deg);
+  }
+}
+
+@keyframes bounce-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes guest-shimmer {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 rgb(250 246 239 / 0);
+  }
+  50% {
+    box-shadow: inset 0 0 28px rgb(250 246 239 / 0.08);
+  }
+}
+
+.pulse-star {
+  animation: pulse-star 3s ease-in-out infinite;
+}
+
+.sparkle {
+  display: inline-block;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.bounce-dot {
+  animation: bounce-dot 1s ease-in-out infinite;
+}
+
+.guest-shimmer {
+  animation: guest-shimmer 4s ease-in-out infinite;
 }

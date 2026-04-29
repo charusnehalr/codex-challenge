@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { Button, Card, Chip, Eyebrow, PageHeader, QueryError, SafetyBanner, SkeletonCard } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { useToastStore } from "@/store/toast.store";
 import type { WorkoutPlan } from "@/lib/workout-engine";
 import type { WorkoutLog } from "@/types/user";
@@ -202,6 +203,10 @@ export default function WorkoutPage() {
   const plan = activePlan ?? data?.plan;
 
   async function complete(feedback?: string, skippedReason?: string, completed = true) {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     const response = await fetch("/api/workout/complete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -218,6 +223,10 @@ export default function WorkoutPage() {
   }
 
   async function generateNew() {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     const response = await fetch("/api/workout/generate", { method: "POST" });
     const payload = (await response.json()) as { plan?: WorkoutPlan };
     setActivePlan(payload.plan ?? null);

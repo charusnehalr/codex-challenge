@@ -6,7 +6,7 @@ type SkeletonProps = {
 };
 
 export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn("animate-pulse rounded-lg bg-shell", className)} />;
+  return <div className={cn("animate-shimmer rounded-lg bg-shimmer", className)} />;
 }
 
 export function SkeletonCard() {

@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type StatDisplayProps = {
@@ -15,12 +19,34 @@ export function StatDisplay({
   sub,
   color = "text-clay",
 }: StatDisplayProps) {
+  const numericValue = typeof value === "number" ? value : null;
+  const motionValue = useMotionValue(0);
+  const rounded = useTransform(motionValue, (latest) =>
+    numericValue !== null && Number.isInteger(numericValue) ? Math.round(latest).toLocaleString() : latest.toFixed(1),
+  );
+  const [displayValue, setDisplayValue] = useState(String(value));
+
+  useEffect(() => {
+    if (numericValue === null) {
+      setDisplayValue(String(value));
+      return;
+    }
+
+    const controls = animate(motionValue, numericValue, { duration: 0.9, ease: [0.22, 1, 0.36, 1] });
+    const unsubscribe = rounded.on("change", setDisplayValue);
+
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+  }, [motionValue, numericValue, rounded, value]);
+
   return (
     <div>
       <div className="flex items-end gap-1">
-        <span className={cn("font-display text-4xl font-normal tracking-tight", color)}>
-          {value}
-        </span>
+        <motion.span className={cn("font-display text-5xl font-normal tracking-tight", color)}>
+          {displayValue}
+        </motion.span>
         {unit ? (
           <span className="pb-1 font-mono text-xs tracking-widest text-muted">{unit}</span>
         ) : null}

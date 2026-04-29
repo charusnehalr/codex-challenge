@@ -1,7 +1,8 @@
+import { AuthModal } from "@/components/features/auth/AuthModal";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { ErrorBoundary, ToastContainer } from "@/components/ui";
+import { CustomCursor, ErrorBoundary, PageTransition, ToastContainer } from "@/components/ui";
 
 export default function ProtectedAppLayout({
   children,
@@ -16,9 +17,13 @@ export default function ProtectedAppLayout({
           <div className="flex min-w-0 flex-1 flex-col">
             <MobileHeader />
             <main className="flex-1 overflow-y-auto">
-              <div className="mx-auto max-w-[1320px] px-4 py-6 md:px-6 md:py-8">{children}</div>
+              <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-8 md:py-10">
+                <PageTransition>{children}</PageTransition>
+              </div>
             </main>
           </div>
+          <CustomCursor />
+          <AuthModal />
           <ToastContainer />
         </div>
       </ErrorBoundary>

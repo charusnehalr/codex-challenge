@@ -23,7 +23,7 @@ export function Chip({ children, tone = "neutral", className }: ChipProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-7 items-center rounded-chip px-3 font-body text-xs font-medium",
+        "inline-flex h-7 items-center rounded-chip px-3 py-1 font-body text-[11px] font-medium transition-all duration-150",
         tones[tone],
         className,
       )}

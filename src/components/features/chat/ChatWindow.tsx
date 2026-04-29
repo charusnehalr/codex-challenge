@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { Send } from "lucide-react";
 import { Button, Chip, Eyebrow, KarigaiLogo, SafetyBanner, Skeleton } from "@/components/ui";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
+import { staggerContainer } from "@/lib/animations";
 import { cn } from "@/lib/utils";
 
 const quickPrompts = [
@@ -22,10 +25,15 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div className={cn("flex", user ? "justify-end" : "justify-start")}>
-      <div className={cn("max-w-[76%]", user ? "text-right" : "text-left")}>
+      <motion.div
+        initial={{ opacity: 0, x: user ? 20 : -20, scale: 0.95 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+        className={cn("max-w-[76%]", user ? "text-right" : "text-left")}
+      >
         <div
           className={cn(
-            "px-4 py-3 font-body text-sm leading-relaxed",
+            "px-4 py-3 font-body text-sm leading-relaxed shadow-[0_1px_4px_rgba(31,27,22,0.06)]",
             user
               ? "rounded-2xl rounded-tr-sm bg-clay text-cream"
               : "rounded-2xl rounded-tl-sm border border-hairline bg-card text-ink2",
@@ -39,7 +47,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           </div>
         ) : null}
         <p className="mt-1 font-mono text-[10px] text-muted">{timestamp(message.createdAt)}</p>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -55,9 +63,7 @@ export function ChatWindow() {
 
   async function submit() {
     const text = input.trim();
-    if (!text || isLoading) {
-      return;
-    }
+    if (!text || isLoading) return;
     setInput("");
     await sendMessage(text);
   }
@@ -75,21 +81,29 @@ export function ChatWindow() {
           <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
             <KarigaiLogo size={34} tagline />
             <Eyebrow className="mt-8">wellness assistant</Eyebrow>
-            <div className="mt-5 flex max-w-xl flex-wrap justify-center gap-2">
+            <motion.div className="mt-5 flex max-w-xl flex-wrap justify-center gap-2" variants={staggerContainer} initial="hidden" animate="visible">
               {quickPrompts.map((prompt) => (
-                <button key={prompt} type="button" onClick={() => setInput(prompt)}>
+                <motion.button
+                  key={prompt}
+                  type="button"
+                  onClick={() => setInput(prompt)}
+                  variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } }}
+                  whileHover={{ scale: 1.04, boxShadow: "0 8px 24px rgba(31,27,22,0.08)" }}
+                >
                   <Chip tone="neutral">{prompt}</Chip>
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
           </div>
         ) : (
           <div className="space-y-5">
             {messages.map((message) => <MessageBubble key={message.id} message={message} />)}
             {isLoading ? (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-tl-sm border border-hairline bg-card px-4 py-3 font-body text-sm text-muted">
-                  ···
+                <div className="flex gap-1 rounded-2xl rounded-tl-sm border border-hairline bg-card px-4 py-3">
+                  {[0, 0.15, 0.3].map((delay) => (
+                    <span key={delay} className="bounce-dot size-1.5 rounded-full bg-muted" style={{ animationDelay: `${delay}s` }} />
+                  ))}
                 </div>
               </div>
             ) : null}
@@ -97,7 +111,7 @@ export function ChatWindow() {
           </div>
         )}
       </div>
-      <div className="sticky bottom-0 mt-4 rounded-card border border-hairline bg-card p-3">
+      <div className="sticky bottom-0 mt-4 rounded-card border border-hairline bg-card p-3 shadow-[0_10px_40px_rgba(31,27,22,0.08)]">
         <div className="flex items-end gap-3">
           <div className="flex-1">
             <textarea
@@ -112,14 +126,14 @@ export function ChatWindow() {
                 }
               }}
               placeholder="Ask about your wellness..."
-              className="max-h-24 min-h-11 w-full resize-none rounded-xl border border-hairline bg-paper px-4 py-3 font-body text-sm outline-none focus:border-clay focus:ring-2 focus:ring-clay/30"
+              className="max-h-24 min-h-11 w-full resize-none rounded-xl border border-hairline bg-paper px-4 py-3 font-body text-sm outline-none transition-all duration-200 focus:border-clay focus:shadow-[0_0_0_3px_rgba(184,112,79,0.12)]"
             />
             {input.length > 400 ? (
               <p className="mt-1 text-right font-mono text-[10px] text-muted">{input.length}/500</p>
             ) : null}
           </div>
-          <Button variant="accent" disabled={!input.trim() || isLoading} onClick={() => void submit()}>
-            Send
+          <Button variant="accent" disabled={!input.trim() || isLoading} onClick={() => void submit()} className="disabled:opacity-40">
+            Send <motion.span whileHover={{ x: 2 }}><Send className="size-4" /></motion.span>
           </Button>
         </div>
       </div>

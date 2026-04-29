@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Input, Modal, Select } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { useToastStore } from "@/store/toast.store";
 
 export type MealDraft = {
@@ -50,6 +51,10 @@ export function AddMealModal({ open, onClose, onSaved, draft }: AddMealModalProp
   }
 
   async function save() {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     if (!form.mealName.trim()) {
       setError("Meal name is required.");
       return;

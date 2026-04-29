@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 
 export type ChatMessage = {
   id: string;
@@ -44,6 +45,10 @@ export function useChat() {
   async function sendMessage(text: string) {
     const trimmed = text.trim();
     if (!trimmed || isLoading) {
+      return;
+    }
+
+    if (!(await ensureAuthenticated("signup"))) {
       return;
     }
 

@@ -1,32 +1,38 @@
-import type { ReactNode } from "react";
+"use client";
+
+import type { HTMLAttributes, ReactNode } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type CardPadding = "sm" | "md" | "lg";
 
-type CardProps = {
+type CardProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
-  className?: string;
   padding?: CardPadding;
   dark?: boolean;
+  interactive?: boolean;
 };
 
 const paddings: Record<CardPadding, string> = {
-  sm: "p-4",
-  md: "p-[18px]",
-  lg: "p-7",
+  sm: "p-5",
+  md: "p-6",
+  lg: "p-8",
 };
 
-export function Card({ children, className, padding = "md", dark = false }: CardProps) {
+export function Card({ children, className, padding = "md", dark = false, interactive = true, ...props }: CardProps) {
   return (
-    <div
+    <motion.div
+      whileHover={interactive ? { scale: 1.012, boxShadow: "0 8px 32px rgba(31,27,22,0.10)" } : undefined}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "rounded-card border",
+        "rounded-card border shadow-[0_1px_4px_rgba(31,27,22,0.06)] transition-shadow duration-200 ease-out",
         dark ? "border-inkLine bg-inkSurf text-cream" : "border-hairline bg-card text-ink",
         paddings[padding],
         className,
       )}
+      {...props}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

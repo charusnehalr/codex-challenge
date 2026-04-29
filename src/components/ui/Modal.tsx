@@ -88,6 +88,7 @@ export function Modal({ open, onClose, title, children, width = "md" }: ModalPro
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           onMouseDown={onClose}
         >
           <motion.div
@@ -96,11 +97,11 @@ export function Modal({ open, onClose, title, children, width = "md" }: ModalPro
             aria-modal="true"
             aria-labelledby="modal-title"
             tabIndex={-1}
-            className={cn("relative w-full rounded-card bg-card p-6 shadow-xl outline-none", widths[width])}
-            initial={{ opacity: 0, scale: 0.96 }}
+            className={cn("relative w-full rounded-card bg-card p-7 shadow-[0_20px_70px_rgba(31,27,22,0.18)] outline-none", widths[width])}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.16 }}
+            exit={{ opacity: 0, scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 380, damping: 30 }}
             onMouseDown={(event) => event.stopPropagation()}
           >
             <button

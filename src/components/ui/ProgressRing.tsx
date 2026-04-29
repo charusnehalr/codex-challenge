@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 type ProgressRingProps = {
   value: number;
   size?: number;
@@ -25,22 +29,17 @@ export function ProgressRing({
   return (
     <div className="relative inline-grid place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={track}
-          strokeWidth={stroke}
-        />
-        <circle
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={track} strokeWidth={stroke} />
+        <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
           stroke={color}
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           strokeLinecap="round"
           strokeWidth={stroke}
         />

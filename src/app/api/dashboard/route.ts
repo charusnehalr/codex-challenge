@@ -110,11 +110,30 @@ export async function GET() {
   const supabase = await createClient();
   const {
     data: { user },
-    error,
   } = await supabase.auth.getUser();
 
-  if (error || !user) {
-    return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
+  if (!user) {
+    const guestResponse: DashboardResponse = {
+      setupProgress: 0,
+      personalizationFactors: {
+        healthContext: [],
+        fitnessOptions: [],
+        symptomsToday: [],
+      },
+      todayPlan: {
+        conditionNotes: [],
+      },
+      logs: {
+        caloriesConsumed: 0,
+        proteinConsumed: 0,
+        waterMl: 0,
+        workoutCompleted: false,
+      },
+      checklist: [],
+      insight: "Sign in to get your personalised wellness plan.",
+    };
+
+    return NextResponse.json(guestResponse);
   }
 
   const context = await getUserContext(user.id);

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
 import { AddMealModal, type MealDraft } from "@/components/features/meals/AddMealModal";
 import {
@@ -17,6 +18,7 @@ import {
   Select,
   SkeletonCard,
 } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import type { MacroTargets, NutritionSummary } from "@/lib/nutrition-engine";
 import { useToastStore } from "@/store/toast.store";
 import type { DietPreferences, HealthContext, MealLog } from "@/types/user";
@@ -121,6 +123,10 @@ function WaterProgressCard({
   onChanged: () => void;
 }) {
   async function add(amountMl: number) {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     const response = await fetch("/api/water", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -193,6 +199,10 @@ function MealLogList({
   onDeleted: () => void;
 }) {
   async function deleteMeal(id: string) {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     await fetch(`/api/meals?id=${id}`, { method: "DELETE" });
     onDeleted();
   }
@@ -204,27 +214,27 @@ function MealLogList({
           <Eyebrow>meal log</Eyebrow>
           <h2 className="mt-2 font-display text-2xl text-ink">Today’s meals</h2>
         </div>
-        <Button variant="accent" onClick={onAdd}>+ Add meal</Button>
+        <Button variant="accent" size="lg" className="hover:shadow-[0_0_0_3px_rgba(184,112,79,0.15)]" onClick={onAdd}>+ Add meal</Button>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         {mealGroups.map((group) => {
           const meals = logs.filter((log) => log.meal_type === group.key);
           return (
-            <div key={group.key} className="rounded-xl border border-hairline p-4">
-              <h3 className="font-body text-sm font-semibold text-ink">{group.label}</h3>
+            <div key={group.key} className="min-h-[100px] rounded-xl border border-hairline p-4">
+              <h3 className="font-body text-base font-semibold text-ink">{group.label}</h3>
               <div className="mt-3 space-y-3">
                 {meals.length ? meals.map((meal) => (
-                  <div key={meal.id} className="flex items-start justify-between gap-3 border-t border-hairline pt-3 first:border-0 first:pt-0">
+                  <motion.div key={meal.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="group flex items-start justify-between gap-3 border-t border-hairline pt-3 first:border-0 first:pt-0">
                     <div>
                       <p className="font-body text-sm text-ink2">{meal.meal_name}</p>
                       <p className="mt-1 font-mono text-[10px] text-muted">
                         {meal.calories ?? 0} cal · P {meal.protein_g ?? 0}g · C {meal.carbs_g ?? 0}g · F {meal.fat_g ?? 0}g
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => deleteMeal(meal.id)} aria-label="Delete meal">
+                    <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100" onClick={() => deleteMeal(meal.id)} aria-label="Delete meal">
                       <Trash2 className="size-4" />
                     </Button>
-                  </div>
+                  </motion.div>
                 )) : <p className="font-body text-sm text-muted">No {group.label.toLowerCase()} logged.</p>}
               </div>
             </div>
@@ -282,6 +292,10 @@ function MealSuggestionCard({
   const [suggestion, setSuggestion] = useState<MealSuggestion | null>(null);
 
   async function suggest() {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch("/api/meals/suggest", {
@@ -317,11 +331,11 @@ function MealSuggestionCard({
         />
       </div>
       <Button variant="accent" onClick={suggest} loading={loading}>
-        ✨ Suggest a meal for {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+        <span className="sparkle">✨</span> Suggest a meal for {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
       </Button>
       {loading ? <SkeletonCard /> : null}
       {suggestion && !loading ? (
-        <div className="rounded-xl border border-hairline p-4">
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 28 }} className="rounded-xl border border-hairline p-4">
           <h3 className="font-body text-base font-semibold text-ink">{suggestion.mealName}</h3>
           <ul className="mt-3 list-inside list-disc font-body text-sm text-muted">
             {suggestion.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}
@@ -349,7 +363,7 @@ function MealSuggestionCard({
           >
             Log this meal
           </Button>
-        </div>
+        </motion.div>
       ) : null}
     </Card>
   );
@@ -359,7 +373,11 @@ export default function MealsPage() {
   const { data, isLoading, error, refetch } = useQuery({ queryKey: ["meals-today"], queryFn: fetchMealsToday });
   const [modalOpen, setModalOpen] = useState(false);
   const [draft, setDraft] = useState<MealDraft | null>(null);
-  const openModal = (nextDraft?: MealDraft) => {
+  const openModal = async (nextDraft?: MealDraft) => {
+    if (!(await ensureAuthenticated("signup"))) {
+      return;
+    }
+
     setDraft(nextDraft ?? null);
     setModalOpen(true);
   };
@@ -379,14 +397,14 @@ export default function MealsPage() {
       {error ? <QueryError error={error} retry={() => void refetch()} /> : null}
       {data ? (
         <>
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             <NutritionProgressCard summary={data.summary} targets={data.targets} />
             <WaterProgressCard waterMl={data.waterMl} targetMl={data.waterTargetMl} onChanged={() => void refetch()} />
             <FastingWindowCard data={data} />
           </div>
-          <MealLogList logs={data.logs} onAdd={() => openModal()} onDeleted={() => void refetch()} />
-          <MealSuggestionCard onUseSuggestion={(nextDraft) => openModal(nextDraft)} />
-          <div className="grid gap-4 lg:grid-cols-2">
+          <MealLogList logs={data.logs} onAdd={() => void openModal()} onDeleted={() => void refetch()} />
+          <MealSuggestionCard onUseSuggestion={(nextDraft) => void openModal(nextDraft)} />
+          <div className="grid gap-5 lg:grid-cols-2">
             <DietContextBadges diet={data.dietPreferences} />
             <DeficiencyReminders data={data} />
           </div>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Button, Card, Chip } from "@/components/ui";
+import { ensureAuthenticated } from "@/lib/auth-guard";
 import { cn } from "@/lib/utils";
 
 const symptoms = ["Fatigue", "Cramps", "Bloating", "Headache", "Cravings", "Good energy", "Low mood", "Nausea"];
@@ -13,6 +15,10 @@ export function EnergyCheckInCard({ onSaved }: { onSaved: () => void }) {
 
   async function save() {
     if (!energy) {
+      return;
+    }
+
+    if (!(await ensureAuthenticated("signup"))) {
       return;
     }
 
@@ -35,17 +41,20 @@ export function EnergyCheckInCard({ onSaved }: { onSaved: () => void }) {
         </div>
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: 10 }, (_, index) => index + 1).map((value) => (
-            <button
+            <motion.button
               key={value}
               type="button"
               onClick={() => setEnergy(value)}
+              whileHover={{ scale: 1.15 }}
+              animate={energy === value ? { scale: 1.2 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 420, damping: 24 }}
               className={cn(
                 "grid size-8 place-items-center rounded-full border font-mono text-xs transition",
                 energy === value ? "border-clay bg-clay text-cream" : "border-hairline bg-card text-muted hover:bg-shell",
               )}
             >
               {value}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -54,9 +63,12 @@ export function EnergyCheckInCard({ onSaved }: { onSaved: () => void }) {
           const selected = selectedSymptoms.includes(symptom);
 
           return (
-            <button
+            <motion.button
               key={symptom}
               type="button"
+              whileHover={{ scale: 1.04 }}
+              animate={selected ? { scale: 1.04 } : { scale: 1 }}
+              transition={{ type: "spring", stiffness: 420, damping: 24 }}
               onClick={() =>
                 setSelectedSymptoms((current) =>
                   selected ? current.filter((item) => item !== symptom) : [...current, symptom],
@@ -64,7 +76,7 @@ export function EnergyCheckInCard({ onSaved }: { onSaved: () => void }) {
               }
             >
               <Chip tone={selected ? "clay" : "neutral"}>{symptom}</Chip>
-            </button>
+            </motion.button>
           );
         })}
       </div>
