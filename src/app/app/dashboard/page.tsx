@@ -92,39 +92,54 @@ function DashboardCard({ children, className }: { children: ReactNode; className
 
 function TinyRing({ value, color = "#B8704F" }: { value: number; color?: string }) {
   const size = 28;
-  const stroke = 3;
+  const stroke = 4;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#EFE7DA" strokeWidth={stroke} />
-      <motion.circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={circumference}
-        initial={{ strokeDashoffset: circumference }}
-        animate={{ strokeDashoffset: circumference * (1 - Math.min(1, Math.max(0, value))) }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      />
-    </svg>
+    <span className="grid size-8 place-items-center rounded-full bg-shell/40">
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#EFE7DA" strokeWidth={stroke} />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: circumference * (1 - Math.min(1, Math.max(0, value))) }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </svg>
+    </span>
   );
 }
 
-function PlanRow({ icon, label, value, side }: { icon: ReactNode; label: string; value: string; side: ReactNode }) {
+function PlanRow({
+  icon,
+  label,
+  value,
+  metric,
+  side,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  metric: ReactNode;
+  side?: ReactNode;
+}) {
   return (
-    <div className="grid grid-cols-[22px_1fr_auto] items-center gap-2 py-2.5">
-      <span>{icon}</span>
+    <div className="grid grid-cols-[20px_1fr_auto_32px] items-center gap-3 py-2.5">
+      <span className="grid place-items-center">{icon}</span>
       <div className="min-w-0">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{label}</p>
-        <p className="truncate font-body text-sm text-ink">{value}</p>
+        <p className="font-mono text-[9px] uppercase tracking-widest text-cream/50">{label}</p>
+        <p className="truncate font-body text-sm text-cream/90">{value}</p>
       </div>
-      {side}
+      <div className="justify-self-end whitespace-nowrap font-body text-xs text-cream/75">{metric}</div>
+      <div className="justify-self-end">{side}</div>
     </div>
   );
 }
@@ -137,43 +152,45 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="h-full rounded-2xl border border-hairline bg-shell/60 p-4 text-ink shadow-[0_2px_16px_rgba(31,27,22,0.06)]"
+      className="flex h-full flex-col overflow-hidden rounded-2xl border border-ink2/20 bg-[linear-gradient(135deg,#2A2420_0%,#1F1B16_100%)] p-4 text-cream shadow-[0_2px_16px_rgba(31,27,22,0.08)]"
     >
       <div className="flex items-center justify-between">
-        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">today's plan</p>
-        <p className="font-mono text-xs text-muted">{timeLabel()}</p>
+        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-cream/55">today's plan</p>
+        <p className="font-mono text-xs text-cream/45">{timeLabel()}</p>
       </div>
-      <div className="mt-3 divide-y divide-hairline">
+      <div className="mt-2 divide-y divide-cream/10">
         <PlanRow
-          icon={<UtensilsCrossed className="size-4 text-clay" />}
+          icon={<UtensilsCrossed className="size-4 text-claySoft" />}
           label="Meals"
-          value={`${calories ? formatInt(calories) : "Set target"} kcal · ${data.todayPlan.mealFocus ?? "Balanced meals"}`}
+          value={data.todayPlan.mealFocus ?? "Balanced meals"}
+          metric={calories ? `${formatInt(calories)} kcal` : "Set target"}
           side={<TinyRing value={percent(data.logs.caloriesConsumed, calories)} color="#B8704F" />}
         />
         <PlanRow
           icon={<Droplets className="size-4 text-[#6B8AA8]" />}
           label="Water"
-          value={`${formatInt(data.logs.waterMl)} of ${formatInt(waterTarget)}ml`}
+          value="Hydration target"
+          metric={`${formatInt(data.logs.waterMl)} of ${formatInt(waterTarget)}ml`}
           side={<TinyRing value={percent(data.logs.waterMl, waterTarget)} color="#6B8AA8" />}
         />
         <PlanRow
           icon={<Dumbbell className="size-4 text-sage" />}
           label="Workout"
-          value={data.todayPlan.workoutName ?? "Gentle cycle support · 45 min"}
-          side={
+          value={data.todayPlan.workoutName ?? "Gentle cycle support"}
+          metric={
             data.logs.workoutCompleted ? (
-              <Chip tone="sage" className="h-6 px-2 text-[10px]">Done ✓</Chip>
+              <Chip tone="sage" className="h-6 px-2 text-[10px]">Done</Chip>
             ) : (
-              <Link href="/app/workout" className="rounded-xl border border-hairline bg-card px-2 py-1 font-body text-[10px] text-ink transition-colors hover:bg-shell">
+              <Link href="/app/workout" className="rounded-xl border border-cream/15 bg-cream/10 px-2 py-1 font-body text-[10px] text-cream transition-colors hover:bg-cream/15">
                 Start →
               </Link>
             )
           }
         />
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="truncate font-body text-[11px] italic text-muted">{cleanInsight(data.insight)}</p>
-        <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-clay transition-colors hover:text-ink">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+        <p className="truncate font-body text-[11px] italic text-cream/60">{cleanInsight(data.insight)}</p>
+        <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-cream/55 transition-colors hover:text-cream">
           Ask assistant →
         </Link>
       </div>
@@ -200,15 +217,15 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
   let angle = 0;
 
   return (
-    <DashboardCard>
+    <DashboardCard className="flex flex-col">
       <div className="flex items-center justify-between gap-2">
         <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">cycle phase</p>
         <Chip tone={data.personalizationFactors.cycleConfidence === "high" ? "sage" : "neutral"} className="h-6 px-2 text-[10px]">
           {data.personalizationFactors.cycleConfidence ?? "medium"}
         </Chip>
       </div>
-      <div className="mt-1 flex justify-center">
-        <svg viewBox="0 0 120 120" className="size-[120px]">
+      <div className="flex flex-1 items-center justify-center">
+        <svg viewBox="0 0 120 120" className="size-[100px]">
           {phaseMeta.map((item) => {
             const start = angle;
             const end = angle + (item.days / 28) * 360;
@@ -239,7 +256,9 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
       <p className="text-center font-mono text-xs uppercase tracking-widest text-muted">
         {data.personalizationFactors.cycleDay ? `Day ${data.personalizationFactors.cycleDay} · ${phase}` : "Add cycle info"}
       </p>
-      <p className="mt-2 line-clamp-1 text-center font-body text-[11px] italic text-muted">{phaseMeta.find((item) => item.name === phase)?.tip ?? "Log symptoms to improve guidance."}</p>
+      <p className="mt-1 truncate text-center font-body text-xs italic text-muted">
+        {phaseMeta.find((item) => item.name === phase)?.tip ?? "Log symptoms to improve guidance."}
+      </p>
     </DashboardCard>
   );
 }

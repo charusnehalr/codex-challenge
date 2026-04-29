@@ -176,6 +176,20 @@ body.cursor-click .custom-cursor-ring {
   animation: bounce-dot 1s ease-in-out infinite;
 }
 
+@keyframes stream-cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.stream-cursor {
+  animation: stream-cursor-blink 1s step-end infinite;
+}
+
 .guest-shimmer {
   animation: guest-shimmer 4s ease-in-out infinite;
 }
