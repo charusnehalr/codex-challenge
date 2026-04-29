@@ -88,6 +88,7 @@ create table cycle_logs (
   user_id uuid not null references auth.users(id) on delete cascade,
   date date not null,
   is_period_day boolean not null default false,
+  period_not_started_yet boolean not null default false,
   flow_level text,
   pain_score int check (pain_score between 0 and 10),
   symptoms text[],
