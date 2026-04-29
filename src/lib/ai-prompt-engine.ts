@@ -157,6 +157,98 @@ Respond ONLY in valid JSON with this exact structure:
 { workoutName, type, durationMinutes, intensity, exercises: [{name, sets, reps, notes}], warmup, cooldown, whyThisWorkout, modifications: string[] }`;
 }
 
+function buildWorkoutHealthContextString(health: UserContext["healthContext"]) {
+  if (!health) return "none flagged";
+  return [
+    health.has_pcos ? "PCOS" : "",
+    health.has_pcod ? "PCOD" : "",
+    health.has_prediabetes ? "prediabetes" : "",
+    health.has_diabetes ? "diabetes" : "",
+    health.has_thyroid_condition ? "thyroid condition" : "",
+    health.has_irregular_periods ? "irregular periods" : "",
+    health.has_iron_deficiency ? "iron deficiency" : "",
+    health.has_vitamin_d_deficiency ? "vitamin D deficiency" : "",
+    health.has_b12_deficiency ? "B12 deficiency" : "",
+    health.has_high_blood_pressure ? "high blood pressure" : "",
+    health.has_eating_disorder_history ? "eating disorder history" : "",
+    health.is_pregnant ? "pregnancy" : "",
+    health.is_breastfeeding ? "breastfeeding" : "",
+    health.other_conditions ?? "",
+  ].filter(Boolean).join(", ") || "none flagged";
+}
+
+function buildEquipmentString(fitness: UserContext["fitnessPreferences"]) {
+  if (!fitness) return "not specified";
+  return [
+    fitness.gym_available ? "gym" : "",
+    fitness.weights_available ? "weights" : "",
+    fitness.swimming_available ? "swimming" : "",
+    fitness.running_available ? "running" : "",
+    fitness.home_workouts_available ? "home workouts" : "",
+    fitness.walking_preferred ? "walking" : "",
+    fitness.cycling_available ? "cycling" : "",
+    fitness.yoga_pilates_preferred ? "yoga or pilates" : "",
+  ].filter(Boolean).join(", ") || "not specified";
+}
+
+export function buildWorkoutGenerationPrompt(
+  ctx: UserContext,
+  options: {
+    focusArea?: string;
+    durationMinutes?: number;
+    energyLevel?: string;
+    extraNotes?: string;
+  },
+): string {
+  const todayLog = ctx.cycleLogs.find((log) => log.date === new Date().toISOString().slice(0, 10));
+
+  return `You are Karigai, a wellness assistant for women.
+Generate a personalised workout plan.
+
+SAFETY RULES:
+- Never suggest exercises that could cause injury for stated conditions.
+- If user has injuries, explicitly avoid those movement patterns.
+- Keep intensity appropriate for cycle phase, pain, and energy level.
+- This is wellness guidance, not medical advice.
+
+USER CONTEXT:
+- Cycle phase: ${ctx.currentCyclePhase ?? "unknown"}
+- Today's energy: ${ctx.todayEnergyScore ?? todayLog?.energy_score ?? 5}/10
+- Today's pain: ${todayLog?.pain_score ?? "not logged"}/10
+- Health context: ${buildWorkoutHealthContextString(ctx.healthContext)}
+- Fitness level: ${ctx.fitnessPreferences?.fitness_level ?? "intermediate"}
+- Available equipment: ${buildEquipmentString(ctx.fitnessPreferences)}
+- Injuries/limitations: ${ctx.fitnessPreferences?.injuries ?? "none"}
+- Preferred duration: ${ctx.fitnessPreferences?.workout_duration_minutes ?? 45} min
+- Goal: ${ctx.goals?.primary_goal ?? "general wellness"}
+
+CUSTOMISATION REQUEST:
+- Focus area: ${options.focusArea ?? "full body"}
+- Duration: ${options.durationMinutes ?? 30} minutes
+- Energy level: ${options.energyLevel ?? "moderate"}
+- Extra notes: ${options.extraNotes ?? "none"}
+
+Respond ONLY in valid JSON:
+{
+  "workoutName": "string",
+  "type": "strength|cardio|mobility|mixed|yoga|hiit",
+  "durationMinutes": number,
+  "intensity": "low|moderate|high",
+  "whyThisWorkout": "2 sentences explaining why this fits the user's context",
+  "exercises": [
+    {
+      "name": "string",
+      "type": "yoga|walk|strength|stretch|cardio",
+      "duration": "string e.g. '10 min' or '3 sets x 12 reps'",
+      "notes": "string"
+    }
+  ],
+  "warmup": "string",
+  "cooldown": "string",
+  "modifications": ["string"]
+}`;
+}
+
 /**
  * Builds the Groq/Llama system prompt for Karigai chat with safety rules and full user context.
  */

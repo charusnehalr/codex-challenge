@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { Check, Droplets, Dumbbell, UtensilsCrossed } from "lucide-react";
 import { Chip, ProgressRing, QueryError, SkeletonCard } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
@@ -152,10 +152,9 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-[linear-gradient(180deg,rgba(184,112,79,0.08)_0%,#FFFFFF_40%)] p-4 text-ink shadow-[0_2px_20px_rgba(31,27,22,0.08)]"
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
     >
-      <div className="absolute bottom-0 left-0 top-0 z-10 w-[3px] bg-clay" />
-      <div className="flex min-h-0 flex-1 flex-col pl-3">
+      <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between">
         <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-clay">today's plan</p>
         <p className="font-mono text-[9px] text-muted">{timeLabel()}</p>
@@ -190,7 +189,7 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
           }
         />
       </div>
-      <div className="-mb-4 -ml-3 -mr-4 mt-auto flex items-center justify-between gap-3 rounded-b-2xl bg-clay/5 px-4 py-2">
+      <div className="-mx-4 -mb-4 mt-auto flex items-center justify-between gap-3 rounded-b-2xl bg-shell/40 px-4 py-2">
         <p className="truncate font-body text-[10px] italic text-muted">{cleanInsight(data.insight)}</p>
         <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-clay transition-colors hover:text-ink">
           Ask assistant →
@@ -315,15 +314,53 @@ function PersonalisationCard({ data }: { data: DashboardResponse }) {
   );
 }
 
-function MiniNutritionRing({ label, sublabel, value, color, caption }: { label: string; sublabel: string; value: number; color: string; caption: string }) {
+function AnimatedRingLabel({ value, delay = 0 }: { value: number; delay?: number }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => String(Math.floor(latest)));
+
+  useEffect(() => {
+    const controls = animate(count, value, {
+      duration: 0.8,
+      delay,
+      ease: [0.22, 1, 0.36, 1],
+    });
+
+    return controls.stop;
+  }, [count, delay, value]);
+
+  return <motion.span>{rounded}</motion.span>;
+}
+
+function MacroRingColumn({
+  label,
+  consumed,
+  target,
+  color,
+  delay = 0,
+}: {
+  label: string;
+  consumed: number;
+  target: number;
+  color: string;
+  delay?: number;
+}) {
   return (
     <motion.div
-      className="flex min-w-[104px] flex-col items-center gap-1.5 text-center"
-      whileHover={{ scale: 1.04 }}
-      transition={{ type: "spring", stiffness: 420, damping: 28 }}
+      className="flex min-w-0 flex-col items-center gap-1 text-center"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1], delay }}
     >
-      <ProgressRing value={value} size={74} stroke={7} color={color} label={label} sublabel={sublabel} />
-      <p className="font-mono text-[10px] text-muted">{caption}</p>
+      <div className="relative grid place-items-center">
+        <ProgressRing value={percent(consumed, target)} size={56} stroke={5} color={color} track="#EFE7DA" sublabel="g" />
+        <div className="absolute inset-0 grid place-items-center pb-2 font-body text-sm font-semibold text-ink">
+          <AnimatedRingLabel value={Math.round(consumed)} delay={delay} />
+        </div>
+      </div>
+      <p className="font-mono text-[8px] uppercase tracking-wide text-muted">{label}</p>
+      <p className="font-mono text-[10px] text-ink2">
+        {formatInt(consumed)}g / {formatInt(target)}g
+      </p>
     </motion.div>
   );
 }
@@ -331,19 +368,26 @@ function MiniNutritionRing({ label, sublabel, value, color, caption }: { label: 
 function NutritionCard({ data }: { data: DashboardResponse }) {
   const calorieTarget = data.todayPlan.calorieTarget ?? 1800;
   const proteinTarget = data.todayPlan.proteinTarget ?? 90;
-  const waterTarget = data.todayPlan.waterTargetMl ?? 2500;
+  const carbsTarget = data.todayPlan.carbsTarget ?? Math.round((calorieTarget * 0.45) / 4);
+  const fatTarget = data.todayPlan.fatTarget ?? Math.round((calorieTarget * 0.28) / 9);
 
   return (
-    <DashboardCard className="flex flex-col">
-      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">nutrition today</p>
-      <div className="mt-4 flex flex-1 items-center justify-evenly gap-3">
-        <MiniNutritionRing label={`${formatInt(data.logs.caloriesConsumed)}`} sublabel="kcal" value={percent(data.logs.caloriesConsumed, calorieTarget)} color="#B8704F" caption={`${formatInt(data.logs.caloriesConsumed)} / ${formatInt(calorieTarget)}`} />
-        <MiniNutritionRing label={`${formatInt(data.logs.proteinConsumed)}`} sublabel="g" value={percent(data.logs.proteinConsumed, proteinTarget)} color="#7A8B6F" caption={`${formatInt(data.logs.proteinConsumed)} / ${formatInt(proteinTarget)}`} />
-        <MiniNutritionRing label={waterDisplay(data.logs.waterMl)} sublabel="water" value={percent(data.logs.waterMl, waterTarget)} color="#6B8AA8" caption={`${formatInt(data.logs.waterMl)} / ${formatInt(waterTarget)}`} />
+    <DashboardCard className="flex flex-col justify-between bg-[linear-gradient(180deg,rgba(239,231,218,0.18)_0%,#FFFFFF_44%)]">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">nutrition today</p>
+        <div className="flex shrink-0 items-baseline gap-1.5">
+          <span className="font-display text-2xl leading-none text-clay">{formatInt(data.logs.caloriesConsumed)}</span>
+          <span className="font-mono text-xs text-muted">of {formatInt(calorieTarget)} kcal</span>
+        </div>
+      </div>
+      <div className="mx-auto grid w-full max-w-[520px] flex-1 grid-cols-3 items-center gap-5 px-3 pb-2">
+        <MacroRingColumn label="Protein" consumed={data.logs.proteinConsumed} target={proteinTarget} color="#7A8B6F" />
+        <MacroRingColumn label="Carbs" consumed={data.logs.carbsConsumed} target={carbsTarget} color="#C9B99A" delay={0.12} />
+        <MacroRingColumn label="Fat" consumed={data.logs.fatConsumed} target={fatTarget} color="#E8B4A8" delay={0.24} />
       </div>
       {!data.logs.caloriesConsumed ? (
-        <Link href="/app/meals" className="mt-2 inline-block font-body text-xs text-clay transition-colors hover:text-ink">
-          + Log your first meal
+        <Link href="/app/meals" className="mt-2 text-center font-body text-xs text-clay transition-colors hover:text-ink">
+          + Log your first meal →
         </Link>
       ) : null}
     </DashboardCard>

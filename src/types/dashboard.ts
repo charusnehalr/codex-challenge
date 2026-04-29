@@ -17,6 +17,8 @@ export type DashboardResponse = {
   todayPlan: {
     calorieTarget?: number;
     proteinTarget?: number;
+    carbsTarget?: number;
+    fatTarget?: number;
     waterTargetMl?: number;
     workoutName?: string;
     backupWorkout?: string;
@@ -27,6 +29,8 @@ export type DashboardResponse = {
   logs: {
     caloriesConsumed: number;
     proteinConsumed: number;
+    carbsConsumed: number;
+    fatConsumed: number;
     waterMl: number;
     workoutCompleted: boolean;
     energyScore?: number;

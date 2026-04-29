@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input, SafetyBanner } from "@/components/ui";
@@ -39,6 +39,10 @@ const booleanDefaults = Object.fromEntries(booleanFields.map((field) => [field.v
   boolean
 >;
 
+function booleanValuesFromRow(row: Record<string, unknown> | null | undefined) {
+  return Object.fromEntries(booleanFields.map((field) => [field.value, row?.[field.value] === true])) as Record<string, boolean>;
+}
+
 const schema = z.object({
   conditions: z.record(z.string(), z.boolean()),
   injuries: z.string().optional(),
@@ -47,16 +51,30 @@ const schema = z.object({
 
 type HealthContextValues = z.infer<typeof schema>;
 
-export function HealthContextForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function HealthContextForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
-  const { register, handleSubmit, watch, setValue } = useForm<HealthContextValues>({
+  const { register, handleSubmit, watch, setValue, reset } = useForm<HealthContextValues, unknown, HealthContextValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      conditions: booleanDefaults,
+      conditions: { ...booleanDefaults, ...booleanValuesFromRow(initialData) },
+      injuries: typeof initialData?.injuries === "string" ? initialData.injuries : undefined,
+      allergies: typeof initialData?.allergies === "string" ? initialData.allergies : undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      conditions: { ...booleanDefaults, ...booleanValuesFromRow(initialData) },
+      injuries: typeof initialData.injuries === "string" ? initialData.injuries : undefined,
+      allergies: typeof initialData.allergies === "string" ? initialData.allergies : undefined,
+    });
+  }, [initialData, reset]);
   const conditions = watch("conditions");
 
   async function onSubmit(values: HealthContextValues) {
@@ -84,7 +102,8 @@ export function HealthContextForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <SafetyBanner
         tone="info"

@@ -14,7 +14,7 @@ export interface Exercise {
 
 export interface WorkoutPlan {
   name: string;
-  type: "strength" | "cardio" | "mobility" | "mixed";
+  type: "strength" | "cardio" | "mobility" | "mixed" | "yoga" | "hiit";
   duration: number;
   intensity: WorkoutIntensity;
   exercises: Exercise[];

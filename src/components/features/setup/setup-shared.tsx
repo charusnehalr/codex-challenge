@@ -26,6 +26,9 @@ export type SetupFormProps = {
   sectionIndex: number;
   onSaved: (section: SetupSectionKey, setupProgress: number, data: Record<string, unknown>) => void;
   healthContext?: Record<string, unknown>;
+  initialData?: Record<string, unknown> | null;
+  profileMode?: boolean;
+  onNextSection?: () => void;
 };
 
 export type Option = {
@@ -80,6 +83,7 @@ export function SetupFormShell({
   onSubmit,
   onSkip,
   onNext,
+  profileMode,
 }: {
   title: string;
   description: string;
@@ -88,21 +92,24 @@ export function SetupFormShell({
   onSubmit: () => void;
   onSkip: () => void;
   onNext: () => void;
+  profileMode?: boolean;
 }) {
   return (
-    <Card padding="lg" className="space-y-6">
+    <Card padding="lg" className="space-y-6 shadow-[0_2px_16px_rgba(31,27,22,0.05)]">
       <div>
-        <h2 className="font-display text-3xl text-ink">{title}</h2>
+        <h2 className="font-display text-3xl italic text-ink">{title}</h2>
         <p className="mt-2 max-w-2xl font-body text-sm leading-6 text-muted">{description}</p>
       </div>
       {children}
       <div className="flex flex-wrap gap-3 border-t border-hairline pt-5">
-        <Button type="button" onClick={onSubmit} loading={loading}>
-          Save section
+        <Button type="button" variant="accent" onClick={onSubmit} loading={loading}>
+          {profileMode ? "Save changes" : "Save section"}
         </Button>
-        <Button type="button" variant="ghost" onClick={onSkip}>
-          Skip for now
-        </Button>
+        {profileMode ? null : (
+          <Button type="button" variant="ghost" onClick={onSkip}>
+            Skip for now
+          </Button>
+        )}
         <Button type="button" variant="ghost" onClick={onNext}>
           Next <span aria-hidden="true">→</span>
         </Button>

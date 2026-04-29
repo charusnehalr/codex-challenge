@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ChipMultiSelect, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type SetupFormProps } from "./setup-shared";
@@ -33,20 +33,38 @@ const schema = z.object({
 type CycleInfoInput = z.input<typeof schema>;
 type CycleInfoValues = z.output<typeof schema>;
 
-export function CycleInfoForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function CycleInfoForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
-  const { register, handleSubmit, watch, setValue } = useForm<CycleInfoInput, unknown, CycleInfoValues>({
+  const { register, handleSubmit, watch, setValue, reset } = useForm<CycleInfoInput, unknown, CycleInfoValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      last_period_start: typeof initialData?.last_period_start === "string" ? initialData.last_period_start : undefined,
       average_cycle_length: 28,
       average_period_length: 5,
-      cycle_regular: "unsure",
-      common_symptoms: [],
-      birth_control_use: "prefer_not_to_say",
+      cycle_regular: typeof initialData?.cycle_regular === "string" ? initialData.cycle_regular as CycleInfoInput["cycle_regular"] : "unsure",
+      common_symptoms: Array.isArray(initialData?.common_symptoms) ? initialData.common_symptoms.filter((value): value is string => typeof value === "string") : [],
+      birth_control_use: typeof initialData?.birth_control_use === "string" ? initialData.birth_control_use as CycleInfoInput["birth_control_use"] : "prefer_not_to_say",
+      flow_level: typeof initialData?.flow_level === "string" ? initialData.flow_level : undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      last_period_start: typeof initialData.last_period_start === "string" ? initialData.last_period_start : undefined,
+      average_cycle_length: typeof initialData.average_cycle_length === "number" ? initialData.average_cycle_length : 28,
+      average_period_length: typeof initialData.average_period_length === "number" ? initialData.average_period_length : 5,
+      cycle_regular: typeof initialData.cycle_regular === "string" ? initialData.cycle_regular as CycleInfoInput["cycle_regular"] : "unsure",
+      common_symptoms: Array.isArray(initialData.common_symptoms) ? initialData.common_symptoms.filter((value): value is string => typeof value === "string") : [],
+      birth_control_use: typeof initialData.birth_control_use === "string" ? initialData.birth_control_use as CycleInfoInput["birth_control_use"] : "prefer_not_to_say",
+      flow_level: typeof initialData.flow_level === "string" ? initialData.flow_level : undefined,
+    });
+  }, [initialData, reset]);
 
   const cycleRegular = watch("cycle_regular");
   const lastPeriodStart = watch("last_period_start");
@@ -73,7 +91,8 @@ export function CycleInfoForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <div className="grid gap-5 md:grid-cols-2">
         <DatePicker

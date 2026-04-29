@@ -37,8 +37,8 @@ export function calculateMacroTargets(ctx: UserContext): MacroTargets {
   const targets = buildUserTargets(ctx.profile ?? fallbackProfile, ctx.goals, ctx.healthContext);
   const calories = targets.calorieTarget;
   const proteinG = targets.proteinTarget;
-  const fatG = Math.round((calories * 0.28) / 9);
-  const carbsG = Math.max(0, Math.round((calories - proteinG * 4 - fatG * 9) / 4));
+  const fatG = targets.fatTarget;
+  const carbsG = targets.carbsTarget;
   const fiberG = calories >= 1800 ? 35 : 25;
 
   return { calories, proteinG, carbsG, fatG, fiberG };

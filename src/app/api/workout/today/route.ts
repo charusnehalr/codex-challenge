@@ -26,6 +26,22 @@ function workoutFromLog(log: WorkoutLog): WorkoutPlan {
   };
 }
 
+function workoutContext(ctx: Awaited<ReturnType<typeof getUserContext>>) {
+  const healthFlags = [
+    ctx.healthContext?.has_iron_deficiency ? "Iron deficiency" : "",
+    ctx.healthContext?.has_irregular_periods ? "Irregular periods" : "",
+    ctx.healthContext?.has_pcos ? "PCOS" : "",
+    ctx.healthContext?.has_thyroid_condition ? "Thyroid condition" : "",
+    ctx.healthContext?.has_prediabetes ? "Prediabetes" : "",
+  ].filter(Boolean);
+
+  return {
+    phase: ctx.currentCyclePhase ?? undefined,
+    energyScore: ctx.todayEnergyScore ?? undefined,
+    healthFlags,
+  };
+}
+
 async function savePlan(userId: string, plan: WorkoutPlan) {
   const supabase = await createClient();
   const today = todayIsoDate();
@@ -68,6 +84,7 @@ export async function GET() {
       skippedReason: existing.data.skipped_reason,
       feedback: existing.data.feedback,
       history: ctx.workoutLogs.slice(0, 7),
+      context: workoutContext(ctx),
     });
   }
 
@@ -86,5 +103,6 @@ export async function GET() {
     backupWorkout,
     completed: false,
     history: ctx.workoutLogs.slice(0, 7),
+    context: workoutContext(ctx),
   });
 }

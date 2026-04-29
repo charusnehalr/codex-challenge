@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -42,7 +42,7 @@ const schema = z.object({
 type BasicProfileInput = z.input<typeof schema>;
 type BasicProfileValues = z.output<typeof schema>;
 
-export function BasicProfileForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function BasicProfileForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
@@ -51,14 +51,34 @@ export function BasicProfileForm({ sectionIndex, onSaved }: SetupFormProps) {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<BasicProfileInput, unknown, BasicProfileValues>({
     resolver: zodResolver(schema),
     defaultValues: {
+      name: typeof initialData?.name === "string" ? initialData.name : undefined,
+      age: typeof initialData?.age === "number" ? initialData.age : undefined,
       heightUnit: "cm",
+      height_cm: typeof initialData?.height_cm === "number" ? initialData.height_cm : undefined,
       weightUnit: "kg",
+      weight_kg: typeof initialData?.weight_kg === "number" ? initialData.weight_kg : undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      name: typeof initialData.name === "string" ? initialData.name : undefined,
+      age: typeof initialData.age === "number" ? initialData.age : undefined,
+      heightUnit: "cm",
+      height_cm: typeof initialData.height_cm === "number" ? initialData.height_cm : undefined,
+      weightUnit: "kg",
+      weight_kg: typeof initialData.weight_kg === "number" ? initialData.weight_kg : undefined,
+    });
+  }, [initialData, reset]);
 
   const heightUnit = watch("heightUnit");
   const weightUnit = watch("weightUnit");
@@ -96,7 +116,8 @@ export function BasicProfileForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <div className="grid gap-5 md:grid-cols-2">
         <Input label="Name" error={errors.name?.message} {...register("name")} />

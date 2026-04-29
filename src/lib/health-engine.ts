@@ -121,6 +121,8 @@ export function buildUserTargets(
 ): {
   calorieTarget: number;
   proteinTarget: number;
+  carbsTarget: number;
+  fatTarget: number;
   waterTargetMl: number;
   activityLevel: string;
   bmr: number;
@@ -134,13 +136,17 @@ export function buildUserTargets(
   const bmr = calculateBMR({ weightKg, heightCm, age });
   const tdee = calculateTDEE(bmr, activityLevel);
 
-  return {
-    calorieTarget: calculateCalorieTarget({
+  const calorieTarget = calculateCalorieTarget({
       tdee,
       goal: primaryGoal,
       hasThyroidCondition: Boolean(healthContext?.has_thyroid_condition),
-    }),
+    });
+
+  return {
+    calorieTarget,
     proteinTarget: calculateProteinTarget(weightKg, primaryGoal),
+    carbsTarget: Math.round((calorieTarget * 0.45) / 4),
+    fatTarget: Math.round((calorieTarget * 0.28) / 9),
     waterTargetMl: calculateWaterTarget(weightKg),
     activityLevel,
     bmr,

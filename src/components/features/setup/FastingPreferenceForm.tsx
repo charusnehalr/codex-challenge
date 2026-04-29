@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input, SafetyBanner } from "@/components/ui";
@@ -29,19 +29,36 @@ function isTruthy(value: unknown) {
   return value === true || value === "yes";
 }
 
-export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext }: SetupFormProps) {
+export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
-  const { register, handleSubmit, watch, setValue } = useForm<FastingPreferenceValues>({
+  const { register, handleSubmit, watch, setValue, reset } = useForm<FastingPreferenceValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      interested_in_fasting: "no",
-      fasting_type: "none",
-      feels_dizzy_when_fasting: "no",
+      interested_in_fasting: initialData?.interested_in_fasting === true ? "yes" : "no",
+      fasting_type: typeof initialData?.fasting_type === "string" ? initialData.fasting_type as FastingPreferenceValues["fasting_type"] : "none",
+      eating_window_start: typeof initialData?.eating_window_start === "string" ? initialData.eating_window_start : undefined,
+      eating_window_end: typeof initialData?.eating_window_end === "string" ? initialData.eating_window_end : undefined,
+      feels_dizzy_when_fasting: initialData?.feels_dizzy_when_fasting === true ? "yes" : "no",
       has_eating_disorder_history_fasting_check: "no",
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      interested_in_fasting: initialData.interested_in_fasting === true ? "yes" : "no",
+      fasting_type: typeof initialData.fasting_type === "string" ? initialData.fasting_type as FastingPreferenceValues["fasting_type"] : "none",
+      eating_window_start: typeof initialData.eating_window_start === "string" ? initialData.eating_window_start : undefined,
+      eating_window_end: typeof initialData.eating_window_end === "string" ? initialData.eating_window_end : undefined,
+      feels_dizzy_when_fasting: initialData.feels_dizzy_when_fasting === true ? "yes" : "no",
+      has_eating_disorder_history_fasting_check: "no",
+    });
+  }, [initialData, reset]);
 
   const interest = watch("interested_in_fasting");
   const fastingType = watch("fasting_type");
@@ -89,7 +106,8 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext }: 
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       {safetyBlocked ? (
         <SafetyBanner

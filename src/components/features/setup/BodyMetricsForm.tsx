@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input, SafetyBanner } from "@/components/ui";
@@ -28,15 +28,37 @@ const schema = z.object({
 type BodyMetricsInput = z.input<typeof schema>;
 type BodyMetricsValues = z.output<typeof schema>;
 
-export function BodyMetricsForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function BodyMetricsForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<BodyMetricsInput, unknown, BodyMetricsValues>({ resolver: zodResolver(schema) });
+  } = useForm<BodyMetricsInput, unknown, BodyMetricsValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      waist_cm: typeof initialData?.waist_cm === "number" ? initialData.waist_cm : undefined,
+      hip_cm: typeof initialData?.hip_cm === "number" ? initialData.hip_cm : undefined,
+      target_weight_kg: typeof initialData?.target_weight_kg === "number" ? initialData.target_weight_kg : undefined,
+      body_fat_percent: typeof initialData?.body_fat_percent === "number" ? initialData.body_fat_percent : undefined,
+    },
+  });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      waist_cm: typeof initialData.waist_cm === "number" ? initialData.waist_cm : undefined,
+      hip_cm: typeof initialData.hip_cm === "number" ? initialData.hip_cm : undefined,
+      target_weight_kg: typeof initialData.target_weight_kg === "number" ? initialData.target_weight_kg : undefined,
+      body_fat_percent: typeof initialData.body_fat_percent === "number" ? initialData.body_fat_percent : undefined,
+    });
+  }, [initialData, reset]);
 
   async function onSubmit(values: BodyMetricsValues) {
     setLoading(true);
@@ -58,7 +80,8 @@ export function BodyMetricsForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <SafetyBanner
         tone="info"

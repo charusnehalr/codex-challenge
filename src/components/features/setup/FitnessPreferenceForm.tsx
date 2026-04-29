@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CheckboxGrid, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type Option, type SetupFormProps } from "./setup-shared";
@@ -33,19 +33,36 @@ const schema = z.object({
 type FitnessPreferenceInput = z.input<typeof schema>;
 type FitnessPreferenceValues = z.output<typeof schema>;
 
-export function FitnessPreferenceForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
-  const { register, handleSubmit, watch, setValue } = useForm<FitnessPreferenceInput, unknown, FitnessPreferenceValues>({
+  const { register, handleSubmit, watch, setValue, reset } = useForm<FitnessPreferenceInput, unknown, FitnessPreferenceValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true },
-      workout_days_per_week: 4,
-      workout_duration_minutes: "45",
-      fitness_level: "beginner",
+      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...initialData },
+      workout_days_per_week: typeof initialData?.workout_days_per_week === "number" ? initialData.workout_days_per_week : 4,
+      workout_duration_minutes: typeof initialData?.workout_duration_minutes === "number" ? String(initialData.workout_duration_minutes) : "45",
+      fitness_level: typeof initialData?.fitness_level === "string" ? initialData.fitness_level as FitnessPreferenceInput["fitness_level"] : "beginner",
+      injuries: typeof initialData?.injuries === "string" ? initialData.injuries : undefined,
+      exercise_dislikes: typeof initialData?.exercise_dislikes === "string" ? initialData.exercise_dislikes : undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...initialData },
+      workout_days_per_week: typeof initialData.workout_days_per_week === "number" ? initialData.workout_days_per_week : 4,
+      workout_duration_minutes: typeof initialData.workout_duration_minutes === "number" ? String(initialData.workout_duration_minutes) : "45",
+      fitness_level: typeof initialData.fitness_level === "string" ? initialData.fitness_level as FitnessPreferenceInput["fitness_level"] : "beginner",
+      injuries: typeof initialData.injuries === "string" ? initialData.injuries : undefined,
+      exercise_dislikes: typeof initialData.exercise_dislikes === "string" ? initialData.exercise_dislikes : undefined,
+    });
+  }, [initialData, reset]);
   const access = watch("access");
   const level = watch("fitness_level");
 
@@ -78,7 +95,8 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved }: SetupFormProps)
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <CheckboxGrid values={access} options={accessOptions} onChange={(key, checked) => setValue(`access.${key}`, checked)} />
       <div className="grid gap-5 md:grid-cols-2">

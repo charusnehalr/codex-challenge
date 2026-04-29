@@ -126,12 +126,16 @@ function guestDashboardResponse(insight = "Sign in to get your personalised well
     todayPlan: {
       calorieTarget: 1800,
       proteinTarget: 90,
+      carbsTarget: Math.round((1800 * 0.45) / 4),
+      fatTarget: Math.round((1800 * 0.28) / 9),
       waterTargetMl: 2500,
       conditionNotes: [],
     },
     logs: {
       caloriesConsumed: 0,
       proteinConsumed: 0,
+      carbsConsumed: 0,
+      fatConsumed: 0,
       waterMl: 0,
       workoutCompleted: false,
     },
@@ -190,6 +194,8 @@ export async function GET() {
   }
   const caloriesConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.calories ?? 0), 0);
   const proteinConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.protein_g ?? 0), 0);
+  const carbsConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.carbs_g ?? 0), 0);
+  const fatConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.fat_g ?? 0), 0);
   const waterMl = latestDailyLog?.date === today ? latestDailyLog.water_ml ?? 0 : 0;
   const energyScore =
     latestDailyLog?.date === today ? latestDailyLog.energy_score ?? undefined : todayCycleLog?.energy_score ?? undefined;
@@ -229,6 +235,8 @@ export async function GET() {
     todayPlan: {
       calorieTarget: userTargets?.calorieTarget ?? planRules.calorieTarget ?? 1800,
       proteinTarget: userTargets?.proteinTarget ?? planRules.proteinTarget ?? 90,
+      carbsTarget: userTargets?.carbsTarget ?? Math.round(((userTargets?.calorieTarget ?? planRules.calorieTarget ?? 1800) * 0.45) / 4),
+      fatTarget: userTargets?.fatTarget ?? Math.round(((userTargets?.calorieTarget ?? planRules.calorieTarget ?? 1800) * 0.28) / 9),
       waterTargetMl: userTargets?.waterTargetMl ?? planRules.waterTargetMl ?? 2500,
       workoutName: todayWorkout?.workout_name ?? planRules.workoutName,
       backupWorkout: planRules.backupWorkout,
@@ -239,6 +247,8 @@ export async function GET() {
     logs: {
       caloriesConsumed,
       proteinConsumed,
+      carbsConsumed,
+      fatConsumed,
       waterMl,
       workoutCompleted,
       energyScore,

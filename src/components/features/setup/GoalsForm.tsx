@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -58,7 +58,7 @@ const schema = z.object({
 type GoalsInput = z.input<typeof schema>;
 type GoalsValues = z.output<typeof schema>;
 
-export function GoalsForm({ sectionIndex, onSaved }: SetupFormProps) {
+export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
@@ -67,15 +67,30 @@ export function GoalsForm({ sectionIndex, onSaved }: SetupFormProps) {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<GoalsInput, unknown, GoalsValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      primary_goal: "lose_weight",
+      primary_goal: typeof initialData?.primary_goal === "string" ? initialData.primary_goal : "lose_weight",
       additional_goals: [],
-      timeline_weeks: "no_rush",
+      target_weight_kg: typeof initialData?.target_weight_kg === "number" ? initialData.target_weight_kg : undefined,
+      timeline_weeks: typeof initialData?.timeline_weeks === "number" ? String(initialData.timeline_weeks) : "no_rush",
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      primary_goal: typeof initialData.primary_goal === "string" ? initialData.primary_goal : "lose_weight",
+      additional_goals: goalOptions.filter((goal) => initialData[`wants_${goal.replace(/^improve_/, "").replace(/^gain_/, "muscle_")}`] === true),
+      target_weight_kg: typeof initialData.target_weight_kg === "number" ? initialData.target_weight_kg : undefined,
+      timeline_weeks: typeof initialData.timeline_weeks === "number" ? String(initialData.timeline_weeks) : "no_rush",
+    });
+  }, [initialData, reset]);
   const primaryGoal = watch("primary_goal");
   const additionalGoals = watch("additional_goals");
 
@@ -115,7 +130,8 @@ export function GoalsForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <div className="space-y-3">
         <p className="font-body text-xs font-medium text-ink2">Primary goal</p>

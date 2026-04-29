@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CheckboxGrid, ChipMultiSelect, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type Option, type SetupFormProps } from "./setup-shared";
@@ -33,19 +33,38 @@ type DietPreferenceValues = z.output<typeof schema>;
 
 const restrictionDefaults = Object.fromEntries(restrictionOptions.map((option) => [option.value, false])) as Record<string, boolean>;
 
-export function DietPreferenceForm({ sectionIndex, onSaved }: SetupFormProps) {
+function restrictionValuesFromRow(row: Record<string, unknown> | null | undefined) {
+  return Object.fromEntries(restrictionOptions.map((option) => [option.value, row?.[option.value] === true])) as Record<string, boolean>;
+}
+
+export function DietPreferenceForm({ sectionIndex, onSaved, initialData, profileMode, onNextSection }: SetupFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useSetupNavigation(sectionIndex);
-  const { register, handleSubmit, watch, setValue } = useForm<DietPreferenceInput, unknown, DietPreferenceValues>({
+  const { register, handleSubmit, watch, setValue, reset } = useForm<DietPreferenceInput, unknown, DietPreferenceValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      diet_type: "vegetarian",
-      restrictions: restrictionDefaults,
-      cuisine_preference: [],
-      meal_frequency: 3,
+      diet_type: typeof initialData?.diet_type === "string" ? initialData.diet_type : "vegetarian",
+      restrictions: { ...restrictionDefaults, ...restrictionValuesFromRow(initialData) },
+      cuisine_preference: typeof initialData?.cuisine_preference === "string" ? initialData.cuisine_preference.split(",").map((item) => item.trim()).filter(Boolean) : [],
+      meal_frequency: typeof initialData?.meal_frequency === "number" ? initialData.meal_frequency : 3,
+      foods_to_avoid: typeof initialData?.foods_to_avoid === "string" ? initialData.foods_to_avoid : undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData) {
+      return;
+    }
+
+    reset({
+      diet_type: typeof initialData.diet_type === "string" ? initialData.diet_type : "vegetarian",
+      restrictions: { ...restrictionDefaults, ...restrictionValuesFromRow(initialData) },
+      cuisine_preference: typeof initialData.cuisine_preference === "string" ? initialData.cuisine_preference.split(",").map((item) => item.trim()).filter(Boolean) : [],
+      meal_frequency: typeof initialData.meal_frequency === "number" ? initialData.meal_frequency : 3,
+      foods_to_avoid: typeof initialData.foods_to_avoid === "string" ? initialData.foods_to_avoid : undefined,
+    });
+  }, [initialData, reset]);
   const dietType = watch("diet_type");
   const restrictions = watch("restrictions");
   const cuisines = watch("cuisine_preference");
@@ -91,7 +110,8 @@ export function DietPreferenceForm({ sectionIndex, onSaved }: SetupFormProps) {
       loading={loading}
       onSubmit={handleSubmit(onSubmit)}
       onSkip={navigation.skip}
-      onNext={navigation.goNext}
+      onNext={onNextSection ?? navigation.goNext}
+      profileMode={profileMode}
     >
       <div className="space-y-3">
         <p className="font-body text-xs font-medium text-ink2">Primary diet type</p>
