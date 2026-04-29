@@ -1,81 +1,124 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useAnimationControls } from "framer-motion";
 
 export function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const [enabled, setEnabled] = useState(false);
-  const clickControls = useAnimationControls();
+  const [mounted, setMounted] = useState(false);
+  const [touchDevice, setTouchDevice] = useState(false);
 
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) {
+    setMounted(true);
+    setTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || touchDevice) {
       return;
     }
 
-    setEnabled(true);
-    let targetX = window.innerWidth / 2;
-    let targetY = window.innerHeight / 2;
-    let currentX = targetX;
-    let currentY = targetY;
-    let frame = 0;
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    if (!dot || !ring) {
+      return;
+    }
 
-    function move(event: MouseEvent) {
-      targetX = event.clientX;
-      targetY = event.clientY;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${targetX - 3}px, ${targetY - 3}px, 0)`;
+    let mouseX = -100;
+    let mouseY = -100;
+    let ringX = -100;
+    let ringY = -100;
+    let hoverScale = "";
+    let rafId = 0;
+
+    const onMouseMove = (event: MouseEvent) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    };
+
+    const loop = () => {
+      dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)${hoverScale}`;
+
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      ring.style.transform = `translate(${ringX - 16}px, ${ringY - 16}px)`;
+
+      rafId = requestAnimationFrame(loop);
+    };
+
+    const onMouseOver = (event: MouseEvent) => {
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      const isClickable = target?.closest(
+        'button, a, [role="button"], input, select, textarea, label, [data-cursor-hover]',
+      );
+
+      if (isClickable) {
+        hoverScale = " scale(2.5)";
+        dot.style.opacity = "0.6";
+        ring.style.width = "48px";
+        ring.style.height = "48px";
+        ring.style.marginLeft = "-8px";
+        ring.style.marginTop = "-8px";
+        ring.style.opacity = "0.4";
+      } else {
+        hoverScale = "";
+        dot.style.opacity = "1";
+        ring.style.width = "32px";
+        ring.style.height = "32px";
+        ring.style.marginLeft = "0";
+        ring.style.marginTop = "0";
+        ring.style.opacity = "1";
       }
+    };
 
-      const target = event.target instanceof Element ? event.target : null;
-      const hoverable = target?.closest("button,a,[role='button'],input,textarea,select,summary,label");
-      document.body.classList.toggle("cursor-hover", Boolean(hoverable));
-    }
-
-    function click() {
-      void clickControls.start({
-        scale: [1, 0.7, 1],
-        transition: { type: "spring", stiffness: 520, damping: 22 },
-      });
-    }
-
-    function animate() {
-      currentX += (targetX - currentX) * 0.15;
-      currentY += (targetY - currentY) * 0.15;
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${currentX - 16}px, ${currentY - 16}px, 0)`;
-      }
-      frame = requestAnimationFrame(animate);
-    }
-
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mousedown", click);
-    frame = requestAnimationFrame(animate);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseover", onMouseOver);
+    rafId = requestAnimationFrame(loop);
 
     return () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mousedown", click);
-      cancelAnimationFrame(frame);
-      document.body.classList.remove("cursor-hover");
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseover", onMouseOver);
+      cancelAnimationFrame(rafId);
     };
-  }, [clickControls]);
+  }, [mounted, touchDevice]);
 
-  if (!enabled) {
+  if (!mounted || touchDevice) {
     return null;
   }
 
   return (
     <>
-      <motion.div
+      <div
         ref={dotRef}
-        animate={clickControls}
-        className="custom-cursor-dot fixed left-0 top-0 z-[9999] size-[6px] pointer-events-none rounded-full bg-clay"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          backgroundColor: "#B8704F",
+          pointerEvents: "none",
+          zIndex: 99999,
+          willChange: "transform",
+          transition: "opacity 0.15s",
+        }}
       />
-      <motion.div
+      <div
         ref={ringRef}
-        animate={clickControls}
-        className="custom-cursor-ring fixed left-0 top-0 z-[9999] size-8 pointer-events-none rounded-full border-2 border-clay/50"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          border: "1.5px solid rgba(184,112,79,0.5)",
+          pointerEvents: "none",
+          zIndex: 99998,
+          willChange: "transform",
+          transition: "width 0.2s, height 0.2s, opacity 0.15s",
+        }}
       />
     </>
   );

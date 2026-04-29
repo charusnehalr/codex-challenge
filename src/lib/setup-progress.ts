@@ -15,7 +15,7 @@ export type SetupStep = "profile" | "health" | "cycle" | "goals";
  * Checks whether a positive finite number is present.
  */
 function hasNumber(value: number | undefined) {
-  return typeof value === "number" && Number.isFinite(value) && value > 0;
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 /**
@@ -36,14 +36,14 @@ function hasRecord(value: Record<string, unknown> | null | undefined) {
  * Calculates weighted setup completion across all eight guided setup sections.
  */
 export function calculateSetupProgress(data: UserSetupData): number {
+  console.log("calculateSetupProgress input:", JSON.stringify(data, null, 2));
+
   const score =
     (hasText(data.profile?.name) &&
-    hasNumber(data.profile?.age) &&
-    hasNumber(data.profile?.height_cm) &&
-    hasNumber(data.profile?.weight_kg)
+    hasNumber(data.profile?.height_cm)
       ? 10
       : 0) +
-    (hasNumber(data.bodyMetrics?.waist_cm) || hasNumber(data.bodyMetrics?.hip_cm) ? 10 : 0) +
+    (hasNumber(data.bodyMetrics?.waist_cm) ? 10 : 0) +
     (hasRecord(data.healthContext) ? 20 : 0) +
     (hasText(data.cycleProfile?.last_period_start) ? 15 : 0) +
     (hasText(data.dietPreferences?.diet_type) ? 15 : 0) +

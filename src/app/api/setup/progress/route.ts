@@ -9,7 +9,7 @@ const emptyProgress = {
 };
 
 function hasNumber(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) && value > 0;
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function hasText(value: unknown) {
@@ -25,14 +25,12 @@ function completedSectionsFromData(data: UserSetupData): SetupSectionKey[] {
 
   if (
     hasText(data.profile?.name) &&
-    hasNumber(data.profile?.age) &&
-    hasNumber(data.profile?.height_cm) &&
-    hasNumber(data.profile?.weight_kg)
+    hasNumber(data.profile?.height_cm)
   ) {
     completed.push("basic_profile");
   }
 
-  if (hasNumber(data.bodyMetrics?.waist_cm) && hasNumber(data.bodyMetrics?.hip_cm)) {
+  if (hasNumber(data.bodyMetrics?.waist_cm)) {
     completed.push("body_metrics");
   }
 

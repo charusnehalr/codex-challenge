@@ -4,6 +4,7 @@ export { Card } from "@/components/ui/Card";
 export { Checkbox } from "@/components/ui/Checkbox";
 export { Chip } from "@/components/ui/Chip";
 export { CustomCursor } from "@/components/ui/CustomCursor";
+export { DatePicker } from "@/components/ui/DatePicker";
 export { EmptyState } from "@/components/ui/EmptyState";
 export { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 export { Eyebrow } from "@/components/ui/Eyebrow";

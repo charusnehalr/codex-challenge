@@ -19,6 +19,9 @@ type SetupPayload = {
 
 type SupabaseError = {
   message: string;
+  code?: string;
+  details?: string;
+  hint?: string;
 };
 
 const sectionNames = new Set<string>([
@@ -48,9 +51,64 @@ function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
-async function throwIfError(result: { error: SupabaseError | null }) {
+class SetupApiError extends Error {
+  status: number;
+  debug?: string;
+
+  constructor(message: string, status = 500, debug?: string) {
+    super(message);
+    this.name = "SetupApiError";
+    this.status = status;
+    this.debug = debug;
+  }
+}
+
+function printMissingTablesInstructions() {
+  console.error(`
+============================================================
+DATABASE TABLES MISSING - ACTION REQUIRED
+============================================================
+The Supabase database tables have not been created.
+
+TO FIX:
+1. Open: https://supabase.com/dashboard
+2. Go to your project -> SQL Editor
+3. Run the file: supabase/fix_missing_tables.sql
+4. Restart the dev server: npm run dev
+============================================================
+  `);
+}
+
+function userMessageForSupabaseError(error: SupabaseError) {
+  if (error.message?.includes("schema cache")) {
+    return "Database setup incomplete. Please run supabase/fix_missing_tables.sql in Supabase.";
+  }
+
+  if (error.code === "42P01") {
+    return "Database table missing. Please run supabase/fix_missing_tables.sql in Supabase.";
+  }
+
+  if (error.code === "42501") {
+    return "Permission error. Please sign out and sign in again.";
+  }
+
+  return "Failed to save. Please try again.";
+}
+
+async function throwIfError(result: { error: SupabaseError | null }, section: SetupSection) {
   if (result.error) {
-    throw new Error(result.error.message);
+    console.error(`[Setup API] Failed to save section "${section}":`, {
+      code: result.error.code,
+      message: result.error.message,
+      details: result.error.details,
+      hint: result.error.hint,
+    });
+
+    if (result.error.message?.includes("schema cache") || result.error.code === "42P01") {
+      printMissingTablesInstructions();
+    }
+
+    throw new SetupApiError(userMessageForSupabaseError(result.error), 500, result.error.message);
   }
 }
 
@@ -59,25 +117,28 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const payload = (await request.json()) as SetupPayload;
-
-  if (!isSetupSection(payload.section) || !payload.data) {
-    return jsonError("Invalid setup section payload.", 400);
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return jsonError("Authentication is required to save setup.", 401);
-  }
-
-  const userId = user.id;
-
   try {
+    const payload = (await request.json()) as SetupPayload;
+    console.log("Setup save request:", { section: payload.section });
+
+    if (!isSetupSection(payload.section) || !payload.data) {
+      console.error("Unknown or invalid setup section:", payload.section);
+      return jsonError("Invalid setup section payload.", 400);
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error("Setup auth error:", userError);
+      return jsonError("Unauthorized", 401);
+    }
+
+    const userId = user.id;
+
     switch (payload.section) {
       case "basic_profile": {
         await throwIfError(
@@ -89,16 +150,21 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
       case "body_metrics": {
         await throwIfError(
-          await supabase.from("body_metrics").insert({
-            user_id: userId,
-            date: todayIsoDate(),
-            ...pick(payload.data, ["waist_cm", "hip_cm", "body_fat_percent"]),
-          }),
+          await supabase.from("body_metrics").upsert(
+            {
+              user_id: userId,
+              date: todayIsoDate(),
+              ...pick(payload.data, ["waist_cm", "hip_cm", "body_fat_percent"]),
+            },
+            { onConflict: "user_id" },
+          ),
+          payload.section,
         );
         if (payload.data.target_weight_kg !== undefined) {
           await throwIfError(
@@ -110,6 +176,7 @@ export async function POST(request: NextRequest) {
               },
               { onConflict: "user_id" },
             ),
+            payload.section,
           );
         }
         break;
@@ -124,6 +191,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -137,6 +205,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -150,6 +219,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -163,6 +233,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -176,6 +247,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -189,6 +261,7 @@ export async function POST(request: NextRequest) {
             },
             { onConflict: "user_id" },
           ),
+          payload.section,
         );
         break;
       }
@@ -227,6 +300,17 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, setupProgress });
   } catch (error) {
-    return jsonError(error instanceof Error ? error.message : "Unable to save setup.", 500);
+    console.error("Setup route error:", error);
+    if (error instanceof SetupApiError) {
+      return NextResponse.json(
+        {
+          error: error.message,
+          debug: process.env.NODE_ENV === "development" ? error.debug : undefined,
+        },
+        { status: error.status },
+      );
+    }
+
+    return jsonError("Internal server error", 500);
   }
 }

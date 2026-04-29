@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -14,8 +14,10 @@ import { FitnessPreferenceForm } from "@/components/features/setup/FitnessPrefer
 import { GoalsForm } from "@/components/features/setup/GoalsForm";
 import { HealthContextForm } from "@/components/features/setup/HealthContextForm";
 import type { SetupSectionKey } from "@/components/features/setup/setup-shared";
-import { Card, PageHeader, ProgressRing } from "@/components/ui";
+import { Button, Card, PageHeader, ProgressRing } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { useAuthModalStore } from "@/store/auth-modal.store";
 
 type SetupSection = {
   index: number;
@@ -40,7 +42,7 @@ const sections: SetupSection[] = [
 ];
 
 async function fetchSetupProgress() {
-  const response = await fetch("/api/setup/progress");
+  const response = await fetch("/api/setup/progress", { credentials: "include" });
   if (!response.ok) {
     throw new Error("Unable to load onboarding progress.");
   }
@@ -155,6 +157,8 @@ function SetupNav({
 function SetupPageContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const openModal = useAuthModalStore((state) => state.openModal);
   const searchParams = useSearchParams();
   const activeSection = sectionFromParam(searchParams.get("section"));
   const [healthContext, setHealthContext] = useState<Record<string, unknown>>({});
@@ -162,6 +166,12 @@ function SetupPageContent() {
     queryKey: ["setupProgress"],
     queryFn: fetchSetupProgress,
   });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void queryClient.invalidateQueries({ queryKey: ["setupProgress"] });
+    }
+  }, [isAuthenticated, queryClient]);
 
   const completedSections = useMemo(
     () => new Set(progressData?.completedSections ?? []),
@@ -176,7 +186,10 @@ function SetupPageContent() {
         if (section === "health_context") {
           setHealthContext(data);
         }
-        void queryClient.invalidateQueries({ queryKey: ["setupProgress"] });
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["setupProgress"] }),
+          queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+        ]);
         const nextSection = Math.min(activeSection + 1, sections.length);
         if (nextSection !== activeSection) {
           router.push(`/app/setup?section=${nextSection}`);
@@ -194,6 +207,21 @@ function SetupPageContent() {
         title="Onboarding"
         subtitle="Share what you know now, skip anything you want to answer later, and keep exploring Karigai at any time."
       />
+      {!authLoading && !isAuthenticated ? (
+        <Card className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h2 className="font-display text-2xl text-ink">Sign in to save onboarding</h2>
+            <p className="mt-2 font-body text-sm leading-relaxed text-muted">
+              You can preview Karigai freely, but onboarding progress is saved to your account.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => openModal("login")}>Sign in</Button>
+            <Button variant="accent" onClick={() => openModal("signup")}>Create account</Button>
+          </div>
+        </Card>
+      ) : null}
+      {isAuthenticated ? (
       <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
         <SetupNav
           activeSection={activeSection}
@@ -212,6 +240,7 @@ function SetupPageContent() {
           {activeKey === "goals" ? <GoalsForm {...sharedProps} /> : null}
         </div>
       </div>
+      ) : null}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ChipMultiSelect, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type SetupFormProps } from "./setup-shared";
-import { Input, Select } from "@/components/ui";
+import { DatePicker, Input, Select } from "@/components/ui";
 
 const symptomOptions = [
   "Cramps",
@@ -49,6 +49,7 @@ export function CycleInfoForm({ sectionIndex, onSaved }: SetupFormProps) {
   });
 
   const cycleRegular = watch("cycle_regular");
+  const lastPeriodStart = watch("last_period_start");
   const symptoms = watch("common_symptoms");
   const birthControlUse = watch("birth_control_use");
 
@@ -75,7 +76,11 @@ export function CycleInfoForm({ sectionIndex, onSaved }: SetupFormProps) {
       onNext={navigation.goNext}
     >
       <div className="grid gap-5 md:grid-cols-2">
-        <Input label="Last period start" type="date" {...register("last_period_start")} />
+        <DatePicker
+          label="Last period start"
+          value={lastPeriodStart}
+          onChange={(value) => setValue("last_period_start", value)}
+        />
         <Select
           label="Flow level"
           options={[

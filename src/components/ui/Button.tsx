@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,7 @@ type ButtonProps = HTMLMotionProps<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  children?: ReactNode;
 };
 
 const variants: Record<ButtonVariant, string> = {

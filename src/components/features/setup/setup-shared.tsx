@@ -39,8 +39,11 @@ export async function saveSetupSection(section: SetupSectionKey, data: Record<st
     throw new Error("");
   }
 
+  console.log("Saving section:", { section, data });
+
   const response = await fetch("/api/setup", {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -50,6 +53,7 @@ export async function saveSetupSection(section: SetupSectionKey, data: Record<st
   const payload = (await response.json()) as SaveResult | { error: string };
 
   if (!response.ok || "error" in payload) {
+    console.error("Save failed:", payload);
     useToastStore.getState().addToast("Something went wrong. Try again.", "error");
     throw new Error("error" in payload ? payload.error : "Unable to save this section.");
   }

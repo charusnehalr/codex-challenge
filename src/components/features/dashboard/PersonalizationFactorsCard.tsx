@@ -27,7 +27,7 @@ export function PersonalizationFactorsCard({
         {locked ? (
           <div className="rounded-xl bg-shell p-4 font-body text-sm text-muted">
             <Link href="/app/setup" className="text-clay">
-              Set up to unlock →
+              Onboard to unlock &rarr;
             </Link>
           </div>
         ) : (

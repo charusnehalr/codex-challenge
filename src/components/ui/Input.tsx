@@ -16,7 +16,7 @@ export function Input({ label, error, hint, id, className, ...props }: InputProp
       <input
         id={inputId}
         className={cn(
-          "h-11 w-full rounded-xl border border-hairline bg-card px-4 font-body text-sm text-ink outline-none transition placeholder:text-muted focus:border-clay focus:ring-2 focus:ring-clay/30",
+          "h-11 w-full rounded-xl border border-l-2 border-hairline border-l-transparent bg-card px-4 font-body text-sm text-ink outline-none transition-all duration-200 placeholder:text-muted focus:border-clay focus:border-l-clay focus:ring-2 focus:ring-clay/30",
           error ? "border-alert focus:border-alert focus:ring-alert/20" : null,
           className,
         )}

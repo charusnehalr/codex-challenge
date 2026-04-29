@@ -106,6 +106,28 @@ function getSetupProgressFromContext(context: UserContext) {
   });
 }
 
+function guestDashboardResponse(insight = "Sign in to get your personalised wellness plan."): DashboardResponse {
+  return {
+    setupProgress: 0,
+    personalizationFactors: {
+      healthContext: [],
+      fitnessOptions: [],
+      symptomsToday: [],
+    },
+    todayPlan: {
+      conditionNotes: [],
+    },
+    logs: {
+      caloriesConsumed: 0,
+      proteinConsumed: 0,
+      waterMl: 0,
+      workoutCompleted: false,
+    },
+    checklist: [],
+    insight,
+  };
+}
+
 export async function GET() {
   const supabase = await createClient();
   const {
@@ -113,30 +135,19 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const guestResponse: DashboardResponse = {
-      setupProgress: 0,
-      personalizationFactors: {
-        healthContext: [],
-        fitnessOptions: [],
-        symptomsToday: [],
-      },
-      todayPlan: {
-        conditionNotes: [],
-      },
-      logs: {
-        caloriesConsumed: 0,
-        proteinConsumed: 0,
-        waterMl: 0,
-        workoutCompleted: false,
-      },
-      checklist: [],
-      insight: "Sign in to get your personalised wellness plan.",
-    };
-
-    return NextResponse.json(guestResponse);
+    return NextResponse.json(guestDashboardResponse());
   }
 
-  const context = await getUserContext(user.id);
+  let context: UserContext;
+  try {
+    context = await getUserContext(user.id);
+  } catch (error) {
+    console.error("Dashboard context unavailable:", error);
+    return NextResponse.json(
+      guestDashboardResponse("Karigai is ready, but the Supabase database tables have not been created yet."),
+    );
+  }
+
   const setupProgress = getSetupProgressFromContext(context);
   const today = todayIsoDate();
   const todaysMeals = context.mealLogs.filter((meal) => meal.date === today);
