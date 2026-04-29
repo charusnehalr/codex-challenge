@@ -124,6 +124,9 @@ function guestDashboardResponse(insight = "Sign in to get your personalised well
       symptomsToday: [],
     },
     todayPlan: {
+      calorieTarget: 1800,
+      proteinTarget: 90,
+      waterTargetMl: 2500,
       conditionNotes: [],
     },
     logs: {
@@ -224,9 +227,9 @@ export async function GET() {
       fastingWindow,
     },
     todayPlan: {
-      calorieTarget: userTargets?.calorieTarget ?? planRules.calorieTarget,
-      proteinTarget: userTargets?.proteinTarget ?? planRules.proteinTarget,
-      waterTargetMl: userTargets?.waterTargetMl ?? planRules.waterTargetMl,
+      calorieTarget: userTargets?.calorieTarget ?? planRules.calorieTarget ?? 1800,
+      proteinTarget: userTargets?.proteinTarget ?? planRules.proteinTarget ?? 90,
+      waterTargetMl: userTargets?.waterTargetMl ?? planRules.waterTargetMl ?? 2500,
       workoutName: todayWorkout?.workout_name ?? planRules.workoutName,
       backupWorkout: planRules.backupWorkout,
       mealFocus: planRules.mealFocus,

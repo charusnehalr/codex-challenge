@@ -112,7 +112,6 @@ function EmptyState({ onPrompt }: { onPrompt: (prompt: string) => void }) {
   return (
     <div className="flex h-full min-h-[340px] flex-col items-center justify-center text-center">
       <KarigaiLogo size={34} mark color="#1F1B16" />
-      <p className="mt-2 font-display text-2xl italic text-ink/40">karigai</p>
       <Eyebrow className="mt-5">wellness assistant</Eyebrow>
       <motion.div
         className="mt-5 flex max-w-2xl flex-wrap justify-center gap-2"
@@ -222,8 +221,8 @@ export function ChatWindow() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] min-h-0 flex-col overflow-hidden bg-paper">
-      <div className="flex min-h-[54px] items-start justify-between gap-4 border-b border-hairline bg-paper px-1 pb-3">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-paper">
+      <div className="flex min-h-[64px] shrink-0 items-center justify-between gap-4 border-b border-hairline bg-paper px-6 py-4">
         <div>
           <Eyebrow>ai assistant</Eyebrow>
           <div className="mt-1 flex items-end gap-3">
@@ -270,7 +269,7 @@ export function ChatWindow() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4 scrollbar-hide">
+      <div className="flex min-h-0 flex-1 overflow-y-auto px-6 py-4 scrollbar-hide">
         {isHistoryLoading ? (
           <div className="space-y-5">
             <Skeleton className="h-16 w-3/5 rounded-2xl" />
@@ -278,9 +277,11 @@ export function ChatWindow() {
             <Skeleton className="h-20 w-2/3 rounded-2xl" />
           </div>
         ) : messages.length === 0 ? (
-          <EmptyState onPrompt={(prompt) => void submitText(prompt)} />
+          <div className="flex min-h-full flex-1 items-center justify-center">
+            <EmptyState onPrompt={(prompt) => void submitText(prompt)} />
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="w-full space-y-4">
             {messages.map((message, index) => (
               <div key={message.id} className="space-y-4">
                 {shouldShowDateHeader(messages, index) ? <ChatDateDivider date={message.timestamp} /> : null}
@@ -292,14 +293,16 @@ export function ChatWindow() {
         )}
       </div>
 
-      <ContextStrip />
+      <div className="shrink-0">
+        <ContextStrip />
+      </div>
 
       {error ? (
-        <div className="border-t border-hairline bg-alert/10 px-6 py-2 font-body text-xs text-alert">{error}</div>
+        <div className="shrink-0 border-t border-hairline bg-alert/10 px-6 py-2 font-body text-xs text-alert">{error}</div>
       ) : null}
 
-      <div className="relative border-t border-hairline bg-card px-6 py-4">
-        <div className="flex items-end gap-3">
+      <div className="relative shrink-0 border-t border-hairline bg-paper px-6 pb-5 pt-3">
+        <div className="flex items-end gap-3 rounded-2xl border border-hairline bg-card p-3 shadow-[0_8px_30px_rgba(31,27,22,0.10)]">
           <div className="mb-3 flex size-8 shrink-0 items-center justify-center rounded-full bg-shell text-clay">
             <Sparkles className="size-4" />
           </div>
@@ -316,7 +319,7 @@ export function ChatWindow() {
               }
             }}
             placeholder="Ask about your wellness..."
-            className="max-h-[120px] min-h-11 flex-1 resize-none rounded-2xl border border-hairline bg-paper px-4 py-3 font-body text-sm text-ink outline-none transition-all duration-200 placeholder:text-muted focus:border-clay focus:shadow-[0_0_0_3px_rgba(184,112,79,0.12)]"
+            className="max-h-[120px] min-h-11 flex-1 resize-none rounded-2xl border border-hairline bg-paper px-4 py-3 font-body text-sm text-ink outline-none transition-all duration-200 placeholder:text-muted focus:border-clay focus:ring-2 focus:ring-clay/15"
           />
           <motion.button
             type="button"
@@ -337,7 +340,7 @@ export function ChatWindow() {
           </motion.button>
         </div>
         {input.length > 400 ? (
-          <p className="absolute bottom-2 right-20 font-mono text-[9px] text-muted">{input.length}/500</p>
+          <p className="absolute bottom-7 right-24 font-mono text-[9px] text-muted">{input.length}/500</p>
         ) : null}
       </div>
     </div>

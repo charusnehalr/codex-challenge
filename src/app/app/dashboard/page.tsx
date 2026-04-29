@@ -132,13 +132,13 @@ function PlanRow({
   side?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[20px_1fr_auto_32px] items-center gap-3 py-2.5">
+    <div className="grid grid-cols-[20px_1fr_auto_32px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
       <span className="grid place-items-center">{icon}</span>
       <div className="min-w-0">
-        <p className="font-mono text-[9px] uppercase tracking-widest text-cream/50">{label}</p>
-        <p className="truncate font-body text-sm text-cream/90">{value}</p>
+        <p className="font-mono text-[9px] uppercase tracking-widest text-muted">{label}</p>
+        <p className="truncate font-body text-sm text-ink">{value}</p>
       </div>
-      <div className="justify-self-end whitespace-nowrap font-body text-xs text-cream/75">{metric}</div>
+      <div className="justify-self-end whitespace-nowrap font-body text-xs text-ink2">{metric}</div>
       <div className="justify-self-end">{side}</div>
     </div>
   );
@@ -152,15 +152,17 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="flex h-full flex-col overflow-hidden rounded-2xl border border-ink2/20 bg-[linear-gradient(135deg,#2A2420_0%,#1F1B16_100%)] p-4 text-cream shadow-[0_2px_16px_rgba(31,27,22,0.08)]"
+      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-[linear-gradient(180deg,rgba(184,112,79,0.08)_0%,#FFFFFF_40%)] p-4 text-ink shadow-[0_2px_20px_rgba(31,27,22,0.08)]"
     >
+      <div className="absolute bottom-0 left-0 top-0 z-10 w-[3px] bg-clay" />
+      <div className="flex min-h-0 flex-1 flex-col pl-3">
       <div className="flex items-center justify-between">
-        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-cream/55">today's plan</p>
-        <p className="font-mono text-xs text-cream/45">{timeLabel()}</p>
+        <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-clay">today's plan</p>
+        <p className="font-mono text-[9px] text-muted">{timeLabel()}</p>
       </div>
-      <div className="mt-2 divide-y divide-cream/10">
+      <div className="mt-2">
         <PlanRow
-          icon={<UtensilsCrossed className="size-4 text-claySoft" />}
+          icon={<UtensilsCrossed className="size-4 text-clay" />}
           label="Meals"
           value={data.todayPlan.mealFocus ?? "Balanced meals"}
           metric={calories ? `${formatInt(calories)} kcal` : "Set target"}
@@ -181,18 +183,19 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
             data.logs.workoutCompleted ? (
               <Chip tone="sage" className="h-6 px-2 text-[10px]">Done</Chip>
             ) : (
-              <Link href="/app/workout" className="rounded-xl border border-cream/15 bg-cream/10 px-2 py-1 font-body text-[10px] text-cream transition-colors hover:bg-cream/15">
+              <Link href="/app/workout" className="rounded-xl border border-hairline bg-card px-2 py-1 font-body text-[10px] text-ink transition-colors hover:bg-shell">
                 Start →
               </Link>
             )
           }
         />
       </div>
-      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-        <p className="truncate font-body text-[11px] italic text-cream/60">{cleanInsight(data.insight)}</p>
-        <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-cream/55 transition-colors hover:text-cream">
+      <div className="-mb-4 -ml-3 -mr-4 mt-auto flex items-center justify-between gap-3 rounded-b-2xl bg-clay/5 px-4 py-2">
+        <p className="truncate font-body text-[10px] italic text-muted">{cleanInsight(data.insight)}</p>
+        <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-clay transition-colors hover:text-ink">
           Ask assistant →
         </Link>
+      </div>
       </div>
     </motion.div>
   );
@@ -264,34 +267,37 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
 }
 
 function PersonalisationCard({ data }: { data: DashboardResponse }) {
-  const factors = [
-    { tone: "blush" as const, values: [cleanLabel(data.personalizationFactors.cyclePhase)] },
-    { tone: "clay" as const, values: [cleanLabel(data.personalizationFactors.goal)] },
-    { tone: "bone" as const, values: [cleanLabel(data.personalizationFactors.dietType)] },
-    { tone: "neutral" as const, values: data.personalizationFactors.healthContext.map(cleanLabel) },
-    { tone: "neutral" as const, values: data.personalizationFactors.symptomsToday.map(cleanLabel) },
-  ].flatMap((group) => group.values.filter((value): value is string => Boolean(value)).map((value) => ({ value, tone: group.tone })));
-  const visibleFactors = factors.slice(0, 6);
-  const extraCount = Math.max(0, factors.length - visibleFactors.length);
+  const groups = [
+    { label: "Phase", tone: "blush" as const, values: [cleanLabel(data.personalizationFactors.cyclePhase)] },
+    { label: "Goal", tone: "clay" as const, values: [cleanLabel(data.personalizationFactors.goal)] },
+    { label: "Diet", tone: "bone" as const, values: [cleanLabel(data.personalizationFactors.dietType)] },
+    {
+      label: "Health",
+      tone: "neutral" as const,
+      values: [...data.personalizationFactors.healthContext, ...data.personalizationFactors.symptomsToday].map(cleanLabel).slice(0, 4),
+    },
+  ]
+    .map((group) => ({ ...group, values: group.values.filter((value): value is string => Boolean(value)) }))
+    .filter((group) => group.values.length);
 
   return (
-    <DashboardCard className="flex flex-col">
-      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">karigai knows</p>
+    <DashboardCard className="flex flex-col bg-gradient-to-br from-paper to-cream">
+      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-clay">karigai knows</p>
       <p className="mb-2 mt-1 font-body text-[10px] italic text-muted">This is what makes your plan yours.</p>
-      <div className="flex flex-1 flex-wrap content-start gap-1 overflow-hidden">
-        {factors.length ? (
-          <>
-            {visibleFactors.map((factor) => (
-              <Chip key={`${factor.tone}-${factor.value}`} tone={factor.tone} className="h-5 px-2 py-0.5 font-mono text-[9px]">
-                {factor.value}
-              </Chip>
-            ))}
-            {extraCount ? (
-              <Chip tone="neutral" className="h-5 px-2 py-0.5 font-mono text-[9px]">
-                +{extraCount} more
-              </Chip>
-            ) : null}
-          </>
+      <div className="flex flex-1 flex-col gap-1.5 overflow-hidden">
+        {groups.length ? (
+          groups.map((group) => (
+            <div key={group.label} className="flex min-w-0 items-center gap-1.5">
+              <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.16em] text-muted">{group.label}</span>
+              <div className="flex min-w-0 flex-wrap gap-1 overflow-hidden">
+                {group.values.map((value) => (
+                  <Chip key={`${group.label}-${value}`} tone={group.tone} className="h-5 px-2 py-0.5 font-mono text-[9px]">
+                    {value}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+          ))
         ) : (
           <p className="font-body text-xs text-muted">Add onboarding details to unlock personalization.</p>
         )}
@@ -313,16 +319,16 @@ function MiniNutritionRing({ label, sublabel, value, color, caption }: { label: 
 }
 
 function NutritionCard({ data }: { data: DashboardResponse }) {
-  const calorieTarget = data.todayPlan.calorieTarget ?? 0;
-  const proteinTarget = data.todayPlan.proteinTarget ?? 0;
+  const calorieTarget = data.todayPlan.calorieTarget ?? 1800;
+  const proteinTarget = data.todayPlan.proteinTarget ?? 90;
   const waterTarget = data.todayPlan.waterTargetMl ?? 2500;
 
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">nutrition today</p>
       <div className="mt-3 flex justify-evenly gap-2">
-        <MiniNutritionRing label={`${formatInt(data.logs.caloriesConsumed)}`} sublabel="kcal" value={percent(data.logs.caloriesConsumed, calorieTarget)} color="#B8704F" caption={`${formatInt(data.logs.caloriesConsumed)} / ${calorieTarget ? formatInt(calorieTarget) : "-"}`} />
-        <MiniNutritionRing label={`${formatInt(data.logs.proteinConsumed)}`} sublabel="g" value={percent(data.logs.proteinConsumed, proteinTarget)} color="#7A8B6F" caption={`${formatInt(data.logs.proteinConsumed)} / ${proteinTarget || "-"}`} />
+        <MiniNutritionRing label={`${formatInt(data.logs.caloriesConsumed)}`} sublabel="kcal" value={percent(data.logs.caloriesConsumed, calorieTarget)} color="#B8704F" caption={`${formatInt(data.logs.caloriesConsumed)} / ${formatInt(calorieTarget)}`} />
+        <MiniNutritionRing label={`${formatInt(data.logs.proteinConsumed)}`} sublabel="g" value={percent(data.logs.proteinConsumed, proteinTarget)} color="#7A8B6F" caption={`${formatInt(data.logs.proteinConsumed)} / ${formatInt(proteinTarget)}`} />
         <MiniNutritionRing label={waterDisplay(data.logs.waterMl)} sublabel="water" value={percent(data.logs.waterMl, waterTarget)} color="#6B8AA8" caption={`${formatInt(data.logs.waterMl)} / ${formatInt(waterTarget)}`} />
       </div>
       {!data.logs.caloriesConsumed ? (
@@ -339,6 +345,7 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
   const addToast = useToastStore((state) => state.addToast);
   const target = data.todayPlan.waterTargetMl ?? 2500;
   const [optimisticWater, setOptimisticWater] = useState(data.logs.waterMl);
+  const [waterPulse, setWaterPulse] = useState(false);
 
   useEffect(() => setOptimisticWater(data.logs.waterMl), [data.logs.waterMl]);
 
@@ -357,6 +364,8 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
       addToast("Couldn't update water", "error");
       return;
     }
+    setWaterPulse(true);
+    window.setTimeout(() => setWaterPulse(false), 320);
     await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     onChanged();
   }
@@ -364,25 +373,35 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">hydration</p>
-      <div className="mt-2 flex flex-1 flex-col justify-between gap-2">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mt-2 flex flex-1 flex-col gap-2 overflow-hidden">
+        <div className="flex min-h-0 flex-1 items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="font-display text-4xl leading-none text-ink">{waterDisplay(optimisticWater)}</p>
-            <p className="whitespace-nowrap font-mono text-xs text-muted">of {formatInt(target)}ml</p>
+            <p className="mt-0.5 whitespace-nowrap font-mono text-xs text-muted">of {formatInt(target)}ml</p>
           </div>
-          <ProgressRing value={percent(optimisticWater, target)} size={56} stroke={6} color="#6B8AA8" />
+          <motion.div animate={{ scale: waterPulse ? [1, 1.1, 1] : 1 }} transition={{ duration: 0.3 }}>
+            <ProgressRing value={percent(optimisticWater, target)} size={56} stroke={6} color="#6B8AA8" track="#EFE7DA" />
+          </motion.div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="h-1.5 overflow-hidden rounded-full bg-shell">
+          <div
+            className="h-full rounded-full bg-[#6B8AA8] transition-all duration-700"
+            style={{ width: `${Math.min(100, percent(optimisticWater, target) * 100)}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2 pb-1">
           {[250, 500].map((amount) => (
-            <button
+            <motion.button
               key={amount}
               type="button"
               data-cursor-hover
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
               onClick={() => void addWater(amount)}
               className="h-8 rounded-xl border border-[#6B8AA8]/20 bg-[#EFF3F8] font-body text-xs text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
             >
               + {amount}ml
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -415,23 +434,23 @@ function WorkoutCard({ data }: { data: DashboardResponse }) {
   }
 
   return (
-    <DashboardCard>
+    <DashboardCard className="flex flex-col p-4">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">workout today</p>
-      <h3 className="mt-2 line-clamp-1 font-body text-sm font-semibold text-ink">{data.todayPlan.workoutName ?? "Gentle cycle support"}</h3>
-      <div className="mt-2 flex gap-1.5">
+      <h3 className="mt-2 line-clamp-1 font-body text-base font-semibold text-ink">{data.todayPlan.workoutName ?? "Gentle cycle support"}</h3>
+      <div className="mb-2 mt-2 flex gap-1.5">
         <Chip tone="neutral" className="h-6 px-2 text-[10px]">45 min</Chip>
         <Chip tone="neutral" className="h-6 px-2 text-[10px]">moderate</Chip>
       </div>
       <p className="mt-2 truncate font-mono text-[10px] text-muted" title="Walking · Yoga · Stretching">Walking · Yoga · Stretching</p>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-auto flex items-center gap-2">
         {completed ? (
           <Chip tone="sage" className="h-8 flex-1 justify-center">Completed today ✓</Chip>
         ) : (
-          <button type="button" data-cursor-hover onClick={() => void completeWorkout()} className="h-8 flex-1 rounded-xl bg-clay px-3 font-body text-xs text-cream shadow-[0_2px_12px_rgba(184,112,79,0.25)]">
+          <button type="button" data-cursor-hover onClick={() => void completeWorkout()} className="h-9 min-w-0 flex-1 whitespace-nowrap rounded-xl bg-clay px-3 font-body text-xs text-cream shadow-[0_2px_12px_rgba(184,112,79,0.25)]">
             Mark complete
           </button>
         )}
-        <Link href="/app/workout" className="grid h-8 w-16 place-items-center rounded-xl border border-hairline bg-shell font-body text-xs text-ink transition-colors hover:bg-card">
+        <Link href="/app/workout" className="grid h-9 w-16 place-items-center rounded-xl border border-hairline bg-shell font-body text-xs text-ink transition-colors hover:bg-card">
           View →
         </Link>
       </div>
@@ -447,7 +466,7 @@ function EnergyCheckInCard() {
   const [saved, setSaved] = useState(false);
   const queryClient = useQueryClient();
   const addToast = useToastStore((state) => state.addToast);
-  const visibleSymptoms = showAllSymptoms ? symptoms : symptoms.slice(0, 6);
+  const visibleSymptoms = showAllSymptoms ? symptoms : symptoms.slice(0, 5);
   const hiddenSymptoms = symptoms.length - visibleSymptoms.length;
 
   async function saveCheckIn() {
@@ -471,11 +490,12 @@ function EnergyCheckInCard() {
   }
 
   return (
-    <DashboardCard className="grid grid-cols-[0.8fr_1.2fr] gap-4">
-      <div className="min-w-0 overflow-hidden">
-        <p className="font-body text-sm font-medium text-ink">How are you feeling?</p>
-        <p className="mt-1 font-body text-[10px] text-muted">Tap a number + symptoms</p>
-        <div className="mt-4 flex min-w-0 gap-1 overflow-hidden">
+    <DashboardCard className="flex flex-col justify-between gap-3">
+      <div className="min-w-0">
+        <p className="font-body text-xs font-medium text-ink">
+          How are you feeling? <span className="font-normal text-muted">· Tap a number + symptoms</span>
+        </p>
+        <div className="mt-4 flex min-w-0 gap-1">
           {Array.from({ length: 10 }, (_, index) => index + 1).map((score) => (
             <motion.button
               key={score}
@@ -485,15 +505,15 @@ function EnergyCheckInCard() {
               animate={{ scale: energy === score ? 1.1 : 1 }}
               transition={{ type: "spring", stiffness: 420, damping: 24 }}
               onClick={() => setEnergy(score)}
-              className={cn("grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-xs shadow-sm", energy === score ? "bg-clay text-cream" : "bg-shell text-muted")}
+              className={cn("grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[11px] shadow-sm", energy === score ? "bg-clay text-cream" : "bg-shell text-muted")}
             >
               {score}
             </motion.button>
           ))}
         </div>
       </div>
-      <div className="flex flex-col items-end justify-between gap-3">
-        <div className="flex flex-wrap justify-end gap-1">
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-nowrap justify-end gap-1.5 overflow-hidden">
           {visibleSymptoms.map((symptom) => {
             const selected = selectedSymptoms.includes(symptom);
             return (
@@ -505,7 +525,7 @@ function EnergyCheckInCard() {
                 animate={{ scale: selected ? 1.04 : 1 }}
                 transition={{ type: "spring", stiffness: 420, damping: 24 }}
                 onClick={() => setSelectedSymptoms((current) => selected ? current.filter((item) => item !== symptom) : [...current, symptom])}
-                className={cn("h-7 rounded-chip border px-2.5 py-0.5 font-body text-[10px] transition-colors", selected ? "border-clay bg-clay text-cream" : "border-hairline bg-shell text-muted")}
+              className={cn("h-7 whitespace-nowrap rounded-chip border px-2.5 py-0.5 font-body text-[10px] transition-colors", selected ? "border-clay bg-clay text-cream" : "border-hairline bg-shell text-muted")}
               >
                 {symptom}
               </motion.button>
@@ -516,13 +536,13 @@ function EnergyCheckInCard() {
               type="button"
               data-cursor-hover
               onClick={() => setShowAllSymptoms(true)}
-              className="h-7 rounded-chip border border-hairline bg-shell px-2.5 py-0.5 font-body text-[10px] text-muted transition-colors hover:text-ink"
+              className="h-7 whitespace-nowrap rounded-chip border border-hairline bg-shell px-2.5 py-0.5 font-body text-[10px] text-muted transition-colors hover:text-ink"
             >
               + {hiddenSymptoms}
             </button>
           ) : null}
         </div>
-        <button type="button" data-cursor-hover onClick={() => void saveCheckIn()} className="h-8 w-fit rounded-xl bg-clay px-3 font-body text-xs text-cream">
+        <button type="button" data-cursor-hover onClick={() => void saveCheckIn()} className="h-9 w-fit shrink-0 rounded-xl bg-clay px-4 font-body text-xs text-cream">
           {saved ? "Saved ✓" : "Save check-in"}
         </button>
       </div>
@@ -545,10 +565,10 @@ function ChecklistCard({ data }: { data: DashboardResponse }) {
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">today · {done}/{items.length} done</p>
-      <div className="mt-2 space-y-1">
+      <div className="mt-2 max-h-[150px] space-y-1.5 overflow-y-auto scrollbar-hide">
         {items.slice(0, 5).map((item) => (
-          <div key={item.id} className="flex h-7 items-center gap-2.5">
-            <span className={cn("grid size-4 place-items-center rounded-sm border-2", item.done ? "border-clay bg-clay text-cream" : "border-hairline bg-card")}>
+          <div key={item.id} className="flex h-6 items-center gap-2.5">
+            <span className={cn("grid size-3.5 place-items-center rounded-sm border-2", item.done ? "border-clay bg-clay text-cream" : "border-hairline bg-card")}>
               {item.done ? <Check className="size-3" /> : null}
             </span>
             <span className={cn("relative font-body text-xs transition-colors", item.done ? "text-muted line-through" : "text-ink2")}>{item.label}</span>
@@ -561,7 +581,7 @@ function ChecklistCard({ data }: { data: DashboardResponse }) {
 
 function LoadingDashboard() {
   return (
-    <div className="grid h-[calc(100vh-120px)] max-h-[620px] min-h-[560px] grid-cols-[2fr_1.2fr_1.2fr] grid-rows-[200px_160px_180px] gap-3.5">
+    <div className="grid min-h-[480px] gap-2.5 md:h-auto md:grid-cols-2 lg:h-[calc(100vh-7.25rem)] lg:max-h-[900px] lg:grid-cols-[2fr_1.1fr_1.1fr] lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
       {Array.from({ length: 8 }, (_, index) => <SkeletonCard key={index} />)}
     </div>
   );
@@ -574,7 +594,7 @@ export default function DashboardPage() {
   const greet = useMemo(() => greeting(), []);
 
   return (
-    <div className="h-[calc(100vh-4rem)] max-h-[760px] space-y-4 overflow-hidden bg-paper">
+    <div className="-mb-8 -mt-6 h-[calc(100vh-2rem)] max-h-[900px] space-y-3 overflow-hidden bg-paper md:-mx-4 md:-mb-10 md:-mt-7">
       {!authLoading && !isAuthenticated ? (
         <motion.div
           initial={{ y: -24, opacity: 0 }}
@@ -589,12 +609,12 @@ export default function DashboardPage() {
         </motion.div>
       ) : null}
 
-      <motion.header variants={fadeUp} initial="hidden" animate="visible" className="flex h-14 items-center justify-between gap-3">
+      <motion.header variants={fadeUp} initial="hidden" animate="visible" className="mb-3 flex shrink-0 items-start justify-between gap-3">
         <div>
           <p className="font-display text-3xl font-normal text-ink">
             {greet}{data?.profileName ? `, ${data.profileName}` : ""} <span className="pulse-star inline-block">✦</span>
           </p>
-          <p className="font-body text-sm text-muted">Your daily overview, shaped by what Karigai knows.</p>
+          <p className="font-body text-xs text-muted">Your daily overview, shaped by what Karigai knows.</p>
         </div>
         <p className="font-mono text-xs uppercase tracking-widest text-muted">{dateLabel()}</p>
       </motion.header>
@@ -606,7 +626,7 @@ export default function DashboardPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid h-[calc(100vh-120px)] max-h-[620px] min-h-[560px] grid-cols-[2fr_1.2fr_1.2fr] grid-rows-[200px_160px_180px] gap-3.5"
+          className="grid min-h-[480px] gap-2.5 md:h-auto md:grid-cols-2 lg:h-[calc(100vh-7.25rem)] lg:max-h-[900px] lg:grid-cols-[2fr_1.1fr_1.1fr] lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
         >
           <TodayPlanCard data={data} />
           <CyclePhaseCard data={data} />
@@ -614,7 +634,7 @@ export default function DashboardPage() {
           <NutritionCard data={data} />
           <HydrationCard data={data} onChanged={() => void refetch()} />
           <WorkoutCard data={data} />
-          <div className="col-span-2"><EnergyCheckInCard /></div>
+          <div className="h-full lg:col-span-2"><EnergyCheckInCard /></div>
           <ChecklistCard data={data} />
         </motion.div>
       ) : null}
