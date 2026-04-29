@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Clock } from "lucide-react";
 import { Input, SafetyBanner } from "@/components/ui";
 import {
   FieldError,
@@ -117,7 +118,7 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
         />
       ) : null}
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Interested in fasting?</p>
+        <p className="font-body text-sm font-medium text-ink2">Interested in fasting?</p>
         <RadioGroup
           value={interest}
           options={[
@@ -131,7 +132,7 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
       {interest !== "no" ? (
         <div className="space-y-5">
           <div className={safetyBlocked ? "pointer-events-none opacity-50" : ""}>
-            <p className="mb-3 font-body text-xs font-medium text-ink2">Fasting type</p>
+            <p className="mb-3 font-body text-sm font-medium text-ink2">Fasting type</p>
             <RadioGroup
               value={fastingType}
               options={[
@@ -144,13 +145,13 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
             />
           </div>
           {showWindow ? (
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <Input label="Eating window start" type="time" {...register("eating_window_start")} />
               <Input label="Eating window end" type="time" {...register("eating_window_end")} />
             </div>
           ) : null}
           <div className="space-y-3">
-            <p className="font-body text-xs font-medium text-ink2">Do you feel dizzy when fasting?</p>
+            <p className="font-body text-sm font-medium text-ink2">Do you feel dizzy when fasting?</p>
             <RadioGroup
               value={watch("feels_dizzy_when_fasting")}
               options={[
@@ -161,7 +162,7 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
             />
           </div>
           <div className="space-y-3">
-            <p className="font-body text-xs font-medium text-ink2">Eating disorder history safety check</p>
+            <p className="font-body text-sm font-medium text-ink2">Eating disorder history safety check</p>
             <RadioGroup
               value={fastingCheck}
               options={[
@@ -178,7 +179,15 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
             />
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="rounded-2xl bg-shell/50 p-6">
+          <Clock className="size-8 text-muted" />
+          <h3 className="mt-3 font-display text-xl italic text-ink">Regular, balanced meals</h3>
+          <p className="mt-2 max-w-xl font-body text-sm leading-relaxed text-muted">
+            Karigai will focus on consistent meal timing, balanced macros, and suggestions that fit your diet type and health context. Fasting preferences can always be updated later.
+          </p>
+        </div>
+      )}
       <FieldError message={error ?? undefined} />
     </SetupFormShell>
   );

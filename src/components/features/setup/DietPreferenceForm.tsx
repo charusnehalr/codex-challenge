@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CheckboxGrid, ChipMultiSelect, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type Option, type SetupFormProps } from "./setup-shared";
-import { Select } from "@/components/ui";
+import { Input, Select } from "@/components/ui";
 
 const restrictionOptions = [
   { value: "is_kosher", label: "Kosher" },
@@ -114,7 +114,7 @@ export function DietPreferenceForm({ sectionIndex, onSaved, initialData, profile
       profileMode={profileMode}
     >
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Primary diet type</p>
+        <p className="font-body text-sm font-medium text-ink2">Primary diet type</p>
         <RadioGroup
           value={dietType}
           options={[
@@ -130,23 +130,20 @@ export function DietPreferenceForm({ sectionIndex, onSaved, initialData, profile
       </div>
       <CheckboxGrid values={restrictions} options={restrictionOptions} onChange={(key, checked) => setValue(`restrictions.${key}`, checked)} />
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Cuisine preference</p>
+        <p className="font-body text-sm font-medium text-ink2">Cuisine preference</p>
         <ChipMultiSelect
           values={cuisines}
           options={["Indian", "Mediterranean", "Asian", "Western", "Middle Eastern", "Mexican", "Mixed"]}
           onChange={(values) => setValue("cuisine_preference", values)}
         />
       </div>
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Select
           label="Meal frequency"
           options={["2", "3", "4", "5", "6"].map((value) => ({ value, label: `${value} times per day` }))}
           {...register("meal_frequency")}
         />
-        <label className="block font-body text-sm text-ink">
-          <span className="mb-1.5 block text-xs font-medium text-ink2">Foods to avoid</span>
-          <textarea className="min-h-24 w-full rounded-xl border border-hairline bg-card px-4 py-3 font-body text-sm outline-none focus:border-clay focus:ring-2 focus:ring-clay/30" {...register("foods_to_avoid")} />
-        </label>
+        <Input label="Foods to avoid" {...register("foods_to_avoid")} />
       </div>
       <FieldError message={error ?? undefined} />
     </SetupFormShell>

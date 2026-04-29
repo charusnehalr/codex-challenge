@@ -140,22 +140,31 @@ export function SetupFormShell({
   profileMode?: boolean;
 }) {
   return (
-    <Card padding="lg" className="space-y-6 shadow-[0_2px_16px_rgba(31,27,22,0.05)]">
-      <div>
-        <h2 className="font-display text-3xl italic text-ink">{title}</h2>
-        <p className="mt-2 max-w-2xl font-body text-sm leading-6 text-muted">{description}</p>
+    <Card
+      padding={profileMode ? "lg" : "md"}
+      className={cn(
+        "flex flex-col shadow-[0_2px_16px_rgba(31,27,22,0.05)]",
+        profileMode ? "space-y-6" : "h-full overflow-hidden",
+      )}
+      interactive={false}
+    >
+      <div className={profileMode ? undefined : "shrink-0"}>
+        <h2 className={cn("font-display italic text-ink", profileMode ? "text-3xl" : "text-2xl")}>{title}</h2>
+        <p className={cn("mt-1 max-w-2xl font-body text-muted", profileMode ? "text-sm leading-6" : "text-sm leading-5")}>{description}</p>
       </div>
-      {children}
-      <div className="flex flex-wrap gap-3 border-t border-hairline pt-5">
-        <Button type="button" variant="accent" onClick={onSubmit} loading={loading}>
+      <div className={cn("min-h-0", profileMode ? undefined : "flex flex-1 flex-col gap-4 overflow-hidden py-4")}>
+        {children}
+      </div>
+      <div className={cn("flex shrink-0 flex-wrap gap-3 border-t border-hairline", profileMode ? "pt-5" : "pt-4")}>
+        <Button type="button" variant="accent" size="md" className="h-10" onClick={onSubmit} loading={loading}>
           {profileMode ? "Save changes" : "Save section"}
         </Button>
         {profileMode ? null : (
-          <Button type="button" variant="ghost" onClick={onSkip}>
+          <Button type="button" variant="ghost" size="md" className="h-10" onClick={onSkip}>
             Skip for now
           </Button>
         )}
-        <Button type="button" variant="ghost" onClick={onNext}>
+        <Button type="button" variant="ghost" size="md" className="h-10" onClick={onNext}>
           Next <span aria-hidden="true">→</span>
         </Button>
       </div>
@@ -184,7 +193,7 @@ export function RadioGroup({
           type="button"
           onClick={() => onChange(option.value)}
           className={cn(
-            "rounded-chip border px-3 py-2 font-body text-xs font-medium transition",
+            "flex h-9 items-center rounded-chip border px-4 font-body text-sm font-medium transition",
             value === option.value
               ? "border-clay bg-claySoft text-ink"
               : "border-hairline bg-card text-muted hover:bg-shell hover:text-ink2",
@@ -207,7 +216,7 @@ export function CheckboxGrid({
   onChange: (key: string, checked: boolean) => void;
 }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2 xl:grid-cols-3">
       {options.map((option) => (
         <Checkbox
           key={option.value}

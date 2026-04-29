@@ -119,7 +119,7 @@ export function BasicProfileForm({ sectionIndex, onSaved, initialData, profileMo
       onNext={onNextSection ?? navigation.goNext}
       profileMode={profileMode}
     >
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
         <Input label="Name" error={errors.name?.message} {...register("name")} />
         <Input label="Age" type="number" error={errors.age?.message} {...register("age")} />
         <div className="space-y-3">

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-  ChipMultiSelect,
   FieldError,
   RadioGroup,
   saveSetupSection,
@@ -92,7 +91,6 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
     });
   }, [initialData, reset]);
   const primaryGoal = watch("primary_goal");
-  const additionalGoals = watch("additional_goals");
 
   async function onSubmit(values: GoalsValues) {
     setLoading(true);
@@ -134,7 +132,7 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
       profileMode={profileMode}
     >
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Primary goal</p>
+        <p className="font-body text-sm font-medium text-ink2">Primary goal</p>
         <RadioGroup
           value={primaryGoal}
           options={goalOptions.map((goal) => ({ value: goal, label: goalLabels[goal] }))}
@@ -142,22 +140,7 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
         />
         <FieldError message={errors.primary_goal?.message} />
       </div>
-      <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Additional goals</p>
-        <ChipMultiSelect
-          values={additionalGoals.map((goal) => goalLabels[goal])}
-          options={goalOptions.map((goal) => goalLabels[goal])}
-          onChange={(labels) =>
-            setValue(
-              "additional_goals",
-              labels
-                .map((label) => goalOptions.find((goal) => goalLabels[goal] === label))
-                .filter((goal): goal is string => Boolean(goal)),
-            )
-          }
-        />
-      </div>
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Input
           label="Target weight (kg)"
           type="number"
@@ -176,6 +159,13 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
           ]}
           {...register("timeline_weeks")}
         />
+      </div>
+      <div className="rounded-xl bg-sageSoft/40 p-4">
+        <p className="font-display text-lg italic text-sage">✦ You&apos;re all set</p>
+        <p className="mt-1 font-body text-xs text-muted">Karigai now has the context to personalise your plan.</p>
+        <a href="/app/dashboard" data-cursor-hover className="mt-3 inline-block font-body text-xs text-clay underline">
+          Go to Dashboard →
+        </a>
       </div>
       <FieldError message={error ?? undefined} />
     </SetupFormShell>

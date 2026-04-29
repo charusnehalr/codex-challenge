@@ -17,12 +17,12 @@ export function Select({ label, error, options, id, className, ...props }: Selec
 
   return (
     <label className="block font-body text-sm text-ink">
-      {label ? <span className="mb-1.5 block text-xs font-medium text-ink2">{label}</span> : null}
+      {label ? <span className="mb-2 block text-sm font-medium text-ink2">{label}</span> : null}
       <span className="relative block">
         <select
           id={selectId}
           className={cn(
-            "h-11 w-full appearance-none rounded-xl border border-hairline bg-card px-4 pr-10 font-body text-sm text-ink outline-none transition focus:border-clay focus:ring-2 focus:ring-clay/30",
+            "h-11 w-full appearance-none rounded-xl border border-hairline bg-card px-4 pr-10 font-body text-sm text-ink outline-none transition focus:border-clay focus:ring-2 focus:ring-clay/15",
             error ? "border-alert focus:border-alert focus:ring-alert/20" : null,
             className,
           )}

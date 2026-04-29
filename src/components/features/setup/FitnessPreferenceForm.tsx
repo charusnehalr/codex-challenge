@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CheckboxGrid, FieldError, RadioGroup, saveSetupSection, SetupFormShell, useSetupNavigation, type Option, type SetupFormProps } from "./setup-shared";
-import { Select } from "@/components/ui";
+import { Input, Select } from "@/components/ui";
 
 const accessOptions = [
   { value: "gym_available", label: "Gym" },
@@ -122,7 +122,7 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
       profileMode={profileMode}
     >
       <CheckboxGrid values={access} options={accessOptions} onChange={(key, checked) => setValue(`access.${key}`, checked)} />
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Select
           label="Workout days per week"
           options={["1", "2", "3", "4", "5", "6", "7"].map((value) => ({ value, label: value }))}
@@ -135,7 +135,7 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
         />
       </div>
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Fitness level</p>
+        <p className="font-body text-sm font-medium text-ink2">Fitness level</p>
         <RadioGroup
           value={level}
           options={[
@@ -146,15 +146,9 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
           onChange={(value) => setValue("fitness_level", value as FitnessPreferenceInput["fitness_level"])}
         />
       </div>
-      <div className="grid gap-5 md:grid-cols-2">
-        <label className="block font-body text-sm text-ink">
-          <span className="mb-1.5 block text-xs font-medium text-ink2">Injuries</span>
-          <textarea className="min-h-24 w-full rounded-xl border border-hairline bg-card px-4 py-3 font-body text-sm outline-none focus:border-clay focus:ring-2 focus:ring-clay/30" {...register("injuries")} />
-        </label>
-        <label className="block font-body text-sm text-ink">
-          <span className="mb-1.5 block text-xs font-medium text-ink2">Exercise dislikes</span>
-          <textarea className="min-h-24 w-full rounded-xl border border-hairline bg-card px-4 py-3 font-body text-sm outline-none focus:border-clay focus:ring-2 focus:ring-clay/30" {...register("exercise_dislikes")} />
-        </label>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Input label="Injuries" {...register("injuries")} />
+        <Input label="Exercise dislikes" {...register("exercise_dislikes")} />
       </div>
       <FieldError message={error ?? undefined} />
     </SetupFormShell>

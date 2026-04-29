@@ -108,14 +108,14 @@ export function HealthContextForm({ sectionIndex, onSaved, initialData, profileM
       <SafetyBanner
         tone="info"
         title="Personalisation context only"
-        body="These fields help Karigai adjust your plan. We do not diagnose or treat medical conditions. Selecting a condition here does not mean you have been clinically diagnosed."
+        body="These fields help Karigai personalise safely. This is context only, not diagnosis."
       />
       <CheckboxGrid
         values={conditions}
         options={booleanFields}
         onChange={(key, checked) => setValue(`conditions.${key}`, checked)}
       />
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Input label="Injuries" {...register("injuries")} />
         <Input label="Food allergies" {...register("allergies")} />
       </div>

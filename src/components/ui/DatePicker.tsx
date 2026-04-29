@@ -96,13 +96,13 @@ export function DatePicker({ label, value, onChange, placeholder = "Select date"
 
   return (
     <div ref={wrapperRef} className="relative">
-      {label ? <p className="mb-1.5 font-body text-xs font-medium text-ink2">{label}</p> : null}
+      {label ? <p className="mb-2 font-body text-sm font-medium text-ink2">{label}</p> : null}
       <button
         type="button"
         data-cursor-hover
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          "flex h-12 w-full items-center justify-between rounded-xl border bg-card px-4 font-body text-sm transition-all duration-200",
+          "flex h-11 w-full items-center justify-between rounded-xl border bg-card px-4 font-body text-sm transition-all duration-200",
           open ? "border-clay ring-2 ring-clay/15" : "border-hairline hover:border-clay/50",
         )}
       >

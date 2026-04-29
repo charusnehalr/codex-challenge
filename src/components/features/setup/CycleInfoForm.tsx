@@ -94,7 +94,7 @@ export function CycleInfoForm({ sectionIndex, onSaved, initialData, profileMode,
       onNext={onNextSection ?? navigation.goNext}
       profileMode={profileMode}
     >
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <DatePicker
           label="Last period start"
           value={lastPeriodStart}
@@ -114,7 +114,7 @@ export function CycleInfoForm({ sectionIndex, onSaved, initialData, profileMode,
         <Input label="Average period length" type="number" {...register("average_period_length")} />
       </div>
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Cycle regularity</p>
+        <p className="font-body text-sm font-medium text-ink2">Cycle regularity</p>
         <RadioGroup
           value={cycleRegular}
           options={[
@@ -131,7 +131,7 @@ export function CycleInfoForm({ sectionIndex, onSaved, initialData, profileMode,
         ) : null}
       </div>
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Common symptoms</p>
+        <p className="font-body text-sm font-medium text-ink2">Common symptoms</p>
         <ChipMultiSelect
           values={symptoms}
           options={symptomOptions}
@@ -139,7 +139,7 @@ export function CycleInfoForm({ sectionIndex, onSaved, initialData, profileMode,
         />
       </div>
       <div className="space-y-3">
-        <p className="font-body text-xs font-medium text-ink2">Birth control use</p>
+        <p className="font-body text-sm font-medium text-ink2">Birth control use</p>
         <RadioGroup
           value={birthControlUse}
           options={[
