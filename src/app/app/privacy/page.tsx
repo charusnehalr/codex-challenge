@@ -100,7 +100,7 @@ export default function PrivacyPage() {
         <p className="font-body text-sm leading-6 text-muted">
           {confirmAction === "delete_account"
             ? "This deletes your Karigai data and signs you out. Your Supabase auth user may still need to be removed from the Supabase dashboard."
-            : "This deletes meal, water, cycle, workout, and chat logs. Your setup and profile remain."}
+            : "This deletes meal, water, cycle, workout, and chat logs. Your onboarding and profile remain."}
         </p>
         <div className="mt-5 flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setConfirmAction(null)}>Cancel</Button>

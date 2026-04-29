@@ -40,9 +40,9 @@ body {
 }
 
 @media (pointer: fine) {
-  html,
-  body,
-  * {
+  *,
+  *::before,
+  *::after {
     cursor: none !important;
   }
 }
@@ -59,7 +59,9 @@ body {
 
 .custom-cursor-dot,
 .custom-cursor-ring {
-  transition: transform 0.12s ease-out, background-color 0.12s ease-out, scale 0.12s ease-out;
+  transform-origin: center;
+  transition: background-color 0.12s ease-out, scale 0.12s ease-out;
+  will-change: transform, scale;
 }
 
 body.cursor-hover .custom-cursor-dot {
@@ -69,6 +71,16 @@ body.cursor-hover .custom-cursor-dot {
 body.cursor-hover .custom-cursor-ring {
   scale: 1.5;
   background: rgb(184 112 79 / 0.1);
+}
+
+body.cursor-precise .custom-cursor-ring {
+  scale: 1.1;
+  background: transparent;
+}
+
+body.cursor-click .custom-cursor-dot,
+body.cursor-click .custom-cursor-ring {
+  scale: 0.7;
 }
 
 .bg-shimmer {
@@ -130,6 +142,18 @@ body.cursor-hover .custom-cursor-ring {
   }
 }
 
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(184 112 79 / 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgb(184 112 79 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(184 112 79 / 0);
+  }
+}
+
 .pulse-star {
   animation: pulse-star 3s ease-in-out infinite;
 }
@@ -145,4 +169,8 @@ body.cursor-hover .custom-cursor-ring {
 
 .guest-shimmer {
   animation: guest-shimmer 4s ease-in-out infinite;
+}
+
+.ring-pulse {
+  animation: ring-pulse 2s ease-out infinite;
 }

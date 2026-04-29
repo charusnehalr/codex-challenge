@@ -118,7 +118,7 @@ export default function AnalysisPage() {
         eyebrow="your wellness analysis"
         title="Analysis"
         subtitle="Calculated estimates from the context you have shared."
-        action={<Link href="/app/setup" className="font-body text-sm text-clay">Update setup</Link>}
+        action={<Link href="/app/setup" className="font-body text-sm text-clay">Update onboarding</Link>}
       />
       <SafetyBanner
         tone="info"
@@ -130,7 +130,7 @@ export default function AnalysisPage() {
           <EmptyState
             icon={<Activity className="size-8" />}
             title="Sign in to see your analysis"
-            body="Your wellness estimates (BMI, BMR, cycle phase) appear here after setup."
+            body="Your wellness estimates (BMI, BMR, cycle phase) appear here after onboarding."
             action={{ label: "Sign in", onClick: () => openModal("login") }}
           />
         </Card>
@@ -150,7 +150,7 @@ export default function AnalysisPage() {
             </Card>
           ) : null}
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <MetricCard label="BMI" value={data.bmi} missing="Add height and weight in setup.">
+            <MetricCard label="BMI" value={data.bmi} missing="Add height and weight in onboarding.">
               {data.bmiCategory ? <Chip tone="neutral">{data.bmiCategory}</Chip> : null}
             </MetricCard>
             <MetricCard label="WHR" value={data.whr} missing="Add waist and hip measurements." />

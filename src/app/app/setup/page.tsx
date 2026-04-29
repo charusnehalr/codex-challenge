@@ -1,9 +1,12 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { BodyMetricsForm } from "@/components/features/setup/BodyMetricsForm";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 import { BasicProfileForm } from "@/components/features/setup/BasicProfileForm";
+import { BodyMetricsForm } from "@/components/features/setup/BodyMetricsForm";
 import { CycleInfoForm } from "@/components/features/setup/CycleInfoForm";
 import { DietPreferenceForm } from "@/components/features/setup/DietPreferenceForm";
 import { FastingPreferenceForm } from "@/components/features/setup/FastingPreferenceForm";
@@ -20,6 +23,11 @@ type SetupSection = {
   label: string;
 };
 
+type SetupProgressResponse = {
+  setupProgress: number;
+  completedSections: SetupSectionKey[];
+};
+
 const sections: SetupSection[] = [
   { index: 1, key: "basic_profile", label: "Basic profile" },
   { index: 2, key: "body_metrics", label: "Body metrics" },
@@ -31,6 +39,14 @@ const sections: SetupSection[] = [
   { index: 8, key: "goals", label: "Goals" },
 ];
 
+async function fetchSetupProgress() {
+  const response = await fetch("/api/setup/progress");
+  if (!response.ok) {
+    throw new Error("Unable to load onboarding progress.");
+  }
+  return (await response.json()) as SetupProgressResponse;
+}
+
 function sectionFromParam(value: string | null) {
   const parsed = Number(value ?? "1");
   if (!Number.isInteger(parsed) || parsed < 1 || parsed > 8) {
@@ -38,6 +54,30 @@ function sectionFromParam(value: string | null) {
   }
 
   return parsed;
+}
+
+function StepIndicator({
+  status,
+}: {
+  status: "complete" | "active" | "incomplete";
+}) {
+  if (status === "complete") {
+    return (
+      <span className="grid size-5 place-items-center rounded-full bg-clay text-cream shadow-[0_0_0_3px_rgba(184,112,79,0.2)]">
+        <Check className="size-2.5" strokeWidth={3} />
+      </span>
+    );
+  }
+
+  if (status === "active") {
+    return (
+      <span className="ring-pulse grid size-5 place-items-center rounded-full border-2 border-clay bg-claySoft/30">
+        <span className="size-2 rounded-full bg-clay" />
+      </span>
+    );
+  }
+
+  return <span className="size-5 rounded-full border-2 border-hairline bg-card" />;
 }
 
 function SetupNav({
@@ -51,30 +91,60 @@ function SetupNav({
   progress: number;
   onSelect: (section: number) => void;
 }) {
+  const completeCount = completedSections.size;
+
   return (
-    <Card className="sticky top-8 space-y-7" padding="lg">
-      <div className="flex justify-center">
-        <ProgressRing value={progress / 100} size={100} stroke={8} label={`${progress}%`} sublabel="setup" />
+    <Card className="sticky top-8 rounded-2xl border border-hairline bg-card p-7 shadow-[0_2px_16px_rgba(31,27,22,0.06)]" padding="sm">
+      <div className="flex flex-col items-center">
+        <ProgressRing value={progress / 100} size={110} stroke={7} label={`${progress}%`} sublabel="done" />
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+          {completeCount} of {sections.length} sections complete
+        </p>
       </div>
-      <nav className="space-y-1">
-        {sections.map((section) => {
+
+      <nav className="mt-6 flex flex-col">
+        {sections.map((section, index) => {
           const complete = completedSections.has(section.key);
           const active = section.index === activeSection;
-          const indicator = complete ? "✓" : active ? "●" : "○";
+          const status = complete ? "complete" : active ? "active" : "incomplete";
 
           return (
-            <button
-              key={section.key}
-              type="button"
-              onClick={() => onSelect(section.index)}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left font-body text-sm transition",
-                active ? "bg-claySoft/30 text-clay" : "text-muted hover:bg-shell hover:text-ink2",
-              )}
-            >
-              <span className={complete || active ? "text-clay" : "text-muted"}>{indicator}</span>
-              <span>{section.label}</span>
-            </button>
+            <div key={section.key} className="flex flex-col items-start">
+              <button
+                type="button"
+                data-cursor-hover
+                onClick={() => onSelect(section.index)}
+                className="flex w-full items-center gap-3 rounded-xl py-1.5 text-left transition-colors duration-150 hover:bg-shell/70"
+              >
+                <StepIndicator status={status} />
+                <span
+                  className={cn(
+                    "font-body text-sm",
+                    status === "complete" && "font-medium text-ink",
+                    status === "active" && "font-semibold text-clay",
+                    status === "incomplete" && "text-muted",
+                  )}
+                >
+                  {section.label}
+                </span>
+                {status === "complete" ? (
+                  <span className="ml-auto font-mono text-[9px] uppercase tracking-widest text-sage">done</span>
+                ) : null}
+              </button>
+              {index < sections.length - 1 ? (
+                <div className="ml-[9px] h-7 w-[2px] overflow-hidden bg-hairline">
+                  {complete ? (
+                    <motion.div
+                      className="h-full w-full bg-clay"
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: 1 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      style={{ transformOrigin: "top" }}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </nav>
@@ -84,36 +154,47 @@ function SetupNav({
 
 function SetupPageContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const activeSection = sectionFromParam(searchParams.get("section"));
-  const [completedSections, setCompletedSections] = useState<Set<SetupSectionKey>>(new Set());
-  const [progress, setProgress] = useState(0);
   const [healthContext, setHealthContext] = useState<Record<string, unknown>>({});
+  const { data: progressData } = useQuery({
+    queryKey: ["setupProgress"],
+    queryFn: fetchSetupProgress,
+  });
 
+  const completedSections = useMemo(
+    () => new Set(progressData?.completedSections ?? []),
+    [progressData?.completedSections],
+  );
+  const progress = progressData?.setupProgress ?? 0;
   const activeKey = sections[activeSection - 1].key;
   const sharedProps = useMemo(
     () => ({
       sectionIndex: activeSection,
-      onSaved: (section: SetupSectionKey, setupProgress: number, data: Record<string, unknown>) => {
-        setCompletedSections((current) => new Set([...current, section]));
-        setProgress(setupProgress);
+      onSaved: (section: SetupSectionKey, _setupProgress: number, data: Record<string, unknown>) => {
         if (section === "health_context") {
           setHealthContext(data);
+        }
+        void queryClient.invalidateQueries({ queryKey: ["setupProgress"] });
+        const nextSection = Math.min(activeSection + 1, sections.length);
+        if (nextSection !== activeSection) {
+          router.push(`/app/setup?section=${nextSection}`);
         }
       },
       healthContext,
     }),
-    [activeSection, healthContext],
+    [activeSection, healthContext, queryClient, router],
   );
 
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="setup"
-        title="Personalise Karigai"
-        subtitle="Save what you know now, skip anything you want to answer later, and keep access to the rest of the app."
+        eyebrow="onboarding"
+        title="Onboarding"
+        subtitle="Share what you know now, skip anything you want to answer later, and keep exploring Karigai at any time."
       />
-      <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
         <SetupNav
           activeSection={activeSection}
           completedSections={completedSections}
@@ -137,7 +218,7 @@ function SetupPageContent() {
 
 export default function SetupPage() {
   return (
-    <Suspense fallback={<PageHeader eyebrow="setup" title="Personalise Karigai" subtitle="Loading setup..." />}>
+    <Suspense fallback={<PageHeader eyebrow="onboarding" title="Onboarding" subtitle="Loading onboarding..." />}>
       <SetupPageContent />
     </Suspense>
   );

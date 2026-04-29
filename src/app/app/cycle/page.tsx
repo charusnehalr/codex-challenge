@@ -421,7 +421,7 @@ export default function CyclePage() {
           </div>
           <CycleHistory logs={data.logs} />
           <p className="font-body text-xs text-muted">
-            Setup details live in <Link href="/app/setup?section=4" className="text-clay">cycle setup</Link>.
+            Onboarding details live in <Link href="/app/setup?section=4" className="text-clay">cycle onboarding</Link>.
           </p>
         </>
       ) : null}
