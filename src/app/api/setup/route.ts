@@ -43,6 +43,25 @@ function pick(data: Record<string, unknown>, fields: string[]) {
   return Object.fromEntries(fields.map((field) => [field, data[field]]).filter(([, value]) => value !== undefined));
 }
 
+function sanitizeFitnessPreferences(data: Record<string, unknown>) {
+  return pick(data, [
+    "fitness_level",
+    "gym_available",
+    "weights_available",
+    "swimming_available",
+    "running_available",
+    "home_workouts_available",
+    "walking_preferred",
+    "cycling_available",
+    "yoga_pilates_preferred",
+    "workout_days_per_week",
+    "workout_duration_minutes",
+    "preferred_activities",
+    "injuries",
+    "exercise_dislikes",
+  ]);
+}
+
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -238,17 +257,36 @@ export async function POST(request: NextRequest) {
         break;
       }
       case "fitness_preferences": {
-        await throwIfError(
-          await supabase.from("fitness_preferences").upsert(
-            {
-              user_id: userId,
-              ...payload.data,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id" },
-          ),
-          payload.section,
-        );
+        try {
+          await throwIfError(
+            await supabase.from("fitness_preferences").upsert(
+              {
+                user_id: userId,
+                ...sanitizeFitnessPreferences(payload.data),
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: "user_id" },
+            ),
+            payload.section,
+          );
+        } catch (error) {
+          const supabaseError = error as { message?: string; code?: string; details?: string; hint?: string };
+          console.error("[API setup] fitness_preferences error:", {
+            code: supabaseError.code,
+            message: supabaseError.message,
+            details: supabaseError.details,
+            hint: supabaseError.hint,
+          });
+
+          if (error instanceof SetupApiError) {
+            throw error;
+          }
+
+          return NextResponse.json(
+            { error: supabaseError.message ?? "Failed to save fitness preferences" },
+            { status: 500 },
+          );
+        }
         break;
       }
       case "goals": {

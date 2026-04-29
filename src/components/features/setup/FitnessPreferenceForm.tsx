@@ -21,6 +21,10 @@ const accessOptions = [
 
 const accessDefaults = Object.fromEntries(accessOptions.map((option) => [option.value, false])) as Record<string, boolean>;
 
+function accessValuesFromRow(row: Record<string, unknown> | null | undefined) {
+  return Object.fromEntries(accessOptions.map((option) => [option.value, row?.[option.value] === true])) as Record<string, boolean>;
+}
+
 const schema = z.object({
   access: z.record(z.string(), z.boolean()),
   workout_days_per_week: z.coerce.number().min(1).max(7),
@@ -40,7 +44,7 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
   const { register, handleSubmit, watch, setValue, reset } = useForm<FitnessPreferenceInput, unknown, FitnessPreferenceValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...initialData },
+      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...accessValuesFromRow(initialData) },
       workout_days_per_week: typeof initialData?.workout_days_per_week === "number" ? initialData.workout_days_per_week : 4,
       workout_duration_minutes: typeof initialData?.workout_duration_minutes === "number" ? String(initialData.workout_duration_minutes) : "45",
       fitness_level: typeof initialData?.fitness_level === "string" ? initialData.fitness_level as FitnessPreferenceInput["fitness_level"] : "beginner",
@@ -55,7 +59,7 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
     }
 
     reset({
-      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...initialData },
+      access: { ...accessDefaults, home_workouts_available: true, walking_preferred: true, ...accessValuesFromRow(initialData) },
       workout_days_per_week: typeof initialData.workout_days_per_week === "number" ? initialData.workout_days_per_week : 4,
       workout_duration_minutes: typeof initialData.workout_duration_minutes === "number" ? String(initialData.workout_duration_minutes) : "45",
       fitness_level: typeof initialData.fitness_level === "string" ? initialData.fitness_level as FitnessPreferenceInput["fitness_level"] : "beginner",
@@ -69,20 +73,39 @@ export function FitnessPreferenceForm({ sectionIndex, onSaved, initialData, prof
   async function onSubmit(values: FitnessPreferenceValues) {
     setLoading(true);
     setError(null);
+    const durationMinutes = values.workout_duration_minutes === "90+"
+      ? 90
+      : Number(String(values.workout_duration_minutes ?? "45").replace(/\D/g, ""));
     const data = {
-      ...values.access,
+      gym_available: Boolean(values.access.gym_available),
+      weights_available: Boolean(values.access.weights_available),
+      swimming_available: Boolean(values.access.swimming_available),
+      running_available: Boolean(values.access.running_available),
+      home_workouts_available: Boolean(values.access.home_workouts_available),
+      walking_preferred: Boolean(values.access.walking_preferred),
+      cycling_available: Boolean(values.access.cycling_available),
+      yoga_pilates_preferred: Boolean(values.access.yoga_pilates_preferred),
       preferred_activities: values.access.dance_sports_available ? ["Dance or sports"] : [],
-      workout_days_per_week: values.workout_days_per_week,
-      workout_duration_minutes: values.workout_duration_minutes === "90+" ? 90 : Number(values.workout_duration_minutes),
+      workout_days_per_week: Number.isFinite(values.workout_days_per_week) ? values.workout_days_per_week : null,
+      workout_duration_minutes: Number.isFinite(durationMinutes) ? durationMinutes : 45,
       fitness_level: values.fitness_level,
-      injuries: values.injuries,
-      exercise_dislikes: values.exercise_dislikes,
+      injuries: values.injuries?.trim() ? values.injuries : null,
+      exercise_dislikes: values.exercise_dislikes?.trim() ? values.exercise_dislikes : null,
     };
     try {
       const result = await saveSetupSection("fitness_preferences", data);
       onSaved("fitness_preferences", result.setupProgress, data);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Unable to save this section.");
+      const message = submitError instanceof Error ? submitError.message : "Unable to save this section.";
+      console.error("[FitnessPreferenceForm] save error:", message);
+
+      if (message.includes("schema cache") || message.includes("42P01")) {
+        setError("Database configuration issue. Please contact support.");
+      } else if (message.toLowerCase().includes("fetch") || message.toLowerCase().includes("network")) {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        setError("Failed to save. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -36,33 +36,78 @@ export type Option = {
   label: string;
 };
 
+function sanitizeForJSON(data: Record<string, unknown>) {
+  const clean: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    if (typeof value === "number" && (!Number.isFinite(value) || Number.isNaN(value))) {
+      continue;
+    }
+
+    if (value instanceof Date) {
+      clean[key] = value.toISOString();
+      continue;
+    }
+
+    clean[key] = value;
+  }
+
+  return clean;
+}
+
 export async function saveSetupSection(section: SetupSectionKey, data: Record<string, unknown>) {
-  const authenticated = await ensureAuthenticated("signup");
-  if (!authenticated) {
-    throw new Error("");
+  console.log("[saveSetupSection] called with section:", section);
+  console.log("[saveSetupSection] data:", JSON.stringify(data, null, 2));
+
+  try {
+    const authenticated = await ensureAuthenticated("signup");
+    if (!authenticated) {
+      throw new Error("Authentication required.");
+    }
+
+    const sanitizedData = sanitizeForJSON(data);
+    const response = await fetch("/api/setup", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ section, data: sanitizedData }),
+    });
+
+    console.log("[saveSetupSection] response status:", response.status);
+
+    const text = await response.text();
+    let payload: SaveResult | { error: string; debug?: string };
+
+    try {
+      payload = JSON.parse(text) as SaveResult | { error: string; debug?: string };
+    } catch (parseError) {
+      console.error("[saveSetupSection] response was not JSON:", text.slice(0, 500));
+      console.error("[saveSetupSection] JSON parse error:", parseError);
+      throw new Error("Server returned an unexpected response. Check the console.");
+    }
+
+    console.log("[saveSetupSection] response body:", payload);
+
+    if (!response.ok || "error" in payload) {
+      console.error("[saveSetupSection] API error:", payload);
+      useToastStore.getState().addToast("Something went wrong. Try again.", "error");
+      throw new Error("error" in payload ? payload.error : `HTTP ${response.status}`);
+    }
+
+    useToastStore.getState().addToast("Saved ✓", "success");
+    return payload;
+  } catch (error) {
+    console.error("[saveSetupSection] caught error:", error);
+    console.error("[saveSetupSection] error message:", error instanceof Error ? error.message : String(error));
+    console.error("[saveSetupSection] error stack:", error instanceof Error ? error.stack : undefined);
+    throw error;
   }
-
-  console.log("Saving section:", { section, data });
-
-  const response = await fetch("/api/setup", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ section, data }),
-  });
-
-  const payload = (await response.json()) as SaveResult | { error: string };
-
-  if (!response.ok || "error" in payload) {
-    console.error("Save failed:", payload);
-    useToastStore.getState().addToast("Something went wrong. Try again.", "error");
-    throw new Error("error" in payload ? payload.error : "Unable to save this section.");
-  }
-
-  useToastStore.getState().addToast("Saved ✓", "success");
-  return payload;
 }
 
 export function useSetupNavigation(sectionIndex: number) {
