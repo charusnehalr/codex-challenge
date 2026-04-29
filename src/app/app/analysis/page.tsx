@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Activity } from "lucide-react";
-import { Badge, Card, Chip, EmptyState, PageHeader, SafetyBanner, SkeletonCard, StatDisplay } from "@/components/ui";
+import { Badge, Card, Chip, EmptyState, PageHeader, QueryError, SafetyBanner, SkeletonCard, StatDisplay } from "@/components/ui";
 
 type AnalysisResponse = {
   bmi?: number;
@@ -118,7 +118,7 @@ export default function AnalysisPage() {
         title="Wellness estimates only"
         body="These metrics are calculated from self-reported data. They are not medical measurements or clinical values."
       />
-      {error ? <SafetyBanner tone="alert" title="Analysis unavailable" body={error} /> : null}
+      {error ? <QueryError error={new Error(error)} retry={() => window.location.reload()} /> : null}
       {!data && !error ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 10 }, (_, index) => <SkeletonCard key={index} />)}

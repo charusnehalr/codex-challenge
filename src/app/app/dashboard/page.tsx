@@ -9,7 +9,7 @@ import { PersonalizationFactorsCard } from "@/components/features/dashboard/Pers
 import { SetupProgressCard } from "@/components/features/dashboard/SetupProgressCard";
 import { WaterProgressCard } from "@/components/features/dashboard/WaterProgressCard";
 import { WorkoutTodayCard } from "@/components/features/dashboard/WorkoutTodayCard";
-import { SkeletonCard } from "@/components/ui";
+import { QueryError, SkeletonCard } from "@/components/ui";
 import { useDashboard } from "@/hooks/useDashboard";
 
 function greeting() {
@@ -68,11 +68,7 @@ export default function DashboardPage() {
 
       {isLoading ? <LoadingDashboard /> : null}
 
-      {error ? (
-        <div className="rounded-card border border-alert/30 bg-alert/10 p-5 font-body text-sm text-alert">
-          Unable to load dashboard.
-        </div>
-      ) : null}
+      {error ? <QueryError error={error} retry={() => void refetch()} /> : null}
 
       {data ? (
         <div className="space-y-6">

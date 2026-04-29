@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Card, Eyebrow, ProgressRing } from "@/components/ui";
+import { useToastStore } from "@/store/toast.store";
 
 export function WaterProgressCard({
   waterMl,
@@ -12,11 +13,16 @@ export function WaterProgressCard({
   onChanged: () => void;
 }) {
   async function addWater(amountMl: number) {
-    await fetch("/api/water", {
+    const response = await fetch("/api/water", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amountMl }),
     });
+    if (!response.ok) {
+      useToastStore.getState().addToast("Something went wrong. Try again.", "error");
+      return;
+    }
+    useToastStore.getState().addToast("Water updated ✓", "success");
     onChanged();
   }
 

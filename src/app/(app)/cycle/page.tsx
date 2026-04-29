@@ -1,3 +1,5 @@
-export default function CyclePage() {
-  return <main className="p-8">Cycle</main>;
+import { redirect } from "next/navigation";
+
+export default function CycleRedirectPage() {
+  redirect("/app/cycle");
 }

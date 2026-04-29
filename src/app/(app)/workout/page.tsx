@@ -1,3 +1,5 @@
-export default function WorkoutPage() {
-  return <main className="p-8">Workout</main>;
+import { redirect } from "next/navigation";
+
+export default function WorkoutRedirectPage() {
+  redirect("/app/workout");
 }

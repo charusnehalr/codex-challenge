@@ -1,3 +1,5 @@
-export default function MealsPage() {
-  return <main className="p-8">Meals</main>;
+import { redirect } from "next/navigation";
+
+export default function MealsRedirectPage() {
+  redirect("/app/meals");
 }

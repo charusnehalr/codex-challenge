@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button, Card, Chip, Eyebrow } from "@/components/ui";
+import { useToastStore } from "@/store/toast.store";
 
 export function WorkoutTodayCard({
   name,
@@ -15,7 +16,12 @@ export function WorkoutTodayCard({
   onChanged: () => void;
 }) {
   async function markComplete() {
-    await fetch("/api/workout/complete", { method: "POST" });
+    const response = await fetch("/api/workout/complete", { method: "POST" });
+    if (!response.ok) {
+      useToastStore.getState().addToast("Something went wrong. Try again.", "error");
+      return;
+    }
+    useToastStore.getState().addToast("Workout complete 🔥", "success");
     onChanged();
   }
 

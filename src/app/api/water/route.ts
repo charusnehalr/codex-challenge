@@ -38,5 +38,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: result.error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, waterMl: nextWater });
+  return NextResponse.json({ success: true, totalWaterMl: nextWater });
 }

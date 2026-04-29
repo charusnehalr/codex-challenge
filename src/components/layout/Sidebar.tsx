@@ -7,14 +7,12 @@ import {
   Dumbbell,
   LayoutDashboard,
   LogOut,
-  Menu,
   MessageCircle,
   Moon,
   Shield,
   SlidersHorizontal,
   User,
   UtensilsCrossed,
-  X,
   type LucideIcon,
 } from "lucide-react";
 import { Badge, KarigaiLogo } from "@/components/ui";
@@ -74,7 +72,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }
 
 export function Sidebar() {
   const router = useRouter();
-  const { isOpen, toggle, close } = useSidebarStore();
+  const { isOpen, close } = useSidebarStore();
 
   async function signOut() {
     const supabase = createClient();
@@ -85,15 +83,6 @@ export function Sidebar() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={toggle}
-        className="fixed left-4 top-4 z-50 grid size-10 place-items-center rounded-xl border border-hairline bg-card text-ink shadow-sm md:hidden"
-        aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
-      >
-        {isOpen ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
-      </button>
-
       <div
         className={cn(
           "fixed inset-0 z-30 bg-ink/30 transition md:hidden",

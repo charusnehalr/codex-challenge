@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { Button, Card, Checkbox, Chip } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useToastStore } from "@/store/toast.store";
 
 export type SetupSectionKey =
   | "basic_profile"
@@ -43,9 +44,11 @@ export async function saveSetupSection(section: SetupSectionKey, data: Record<st
   const payload = (await response.json()) as SaveResult | { error: string };
 
   if (!response.ok || "error" in payload) {
+    useToastStore.getState().addToast("Something went wrong. Try again.", "error");
     throw new Error("error" in payload ? payload.error : "Unable to save this section.");
   }
 
+  useToastStore.getState().addToast("Saved ✓", "success");
   return payload;
 }
 

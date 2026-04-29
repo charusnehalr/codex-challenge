@@ -1,3 +1,5 @@
-export default function ChatPage() {
-  return <main className="p-8">Chat</main>;
+import { redirect } from "next/navigation";
+
+export default function ChatRedirectPage() {
+  redirect("/app/chat");
 }
