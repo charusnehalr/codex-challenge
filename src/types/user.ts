@@ -77,6 +77,7 @@ export interface CycleLog {
   user_id: string;
   date: string;
   is_period_day: boolean;
+  period_not_started_yet?: boolean | null;
   flow_level: string | null;
   pain_score: number | null;
   symptoms: string[] | null;

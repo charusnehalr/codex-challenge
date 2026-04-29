@@ -110,3 +110,41 @@ export function calculateProteinTarget(weightKg: number, goal: string): number {
 export function calculateWaterTarget(weightKg: number): number {
   return Math.round((weightKg * 33) / 100) * 100;
 }
+
+/**
+ * Builds shared user targets from the same health engine calculations used across Karigai.
+ */
+export function buildUserTargets(
+  profile: Profile,
+  goals: Goals | null,
+  healthContext: HealthContext | null,
+): {
+  calorieTarget: number;
+  proteinTarget: number;
+  waterTargetMl: number;
+  activityLevel: string;
+  bmr: number;
+  tdee: number;
+} {
+  const weightKg = profile.weight_kg ?? 68;
+  const heightCm = profile.height_cm ?? 163;
+  const age = profile.age ?? 28;
+  const primaryGoal = goals?.primary_goal ?? "maintain";
+  const activityLevel = "light";
+  const bmr = calculateBMR({ weightKg, heightCm, age });
+  const tdee = calculateTDEE(bmr, activityLevel);
+
+  return {
+    calorieTarget: calculateCalorieTarget({
+      tdee,
+      goal: primaryGoal,
+      hasThyroidCondition: Boolean(healthContext?.has_thyroid_condition),
+    }),
+    proteinTarget: calculateProteinTarget(weightKg, primaryGoal),
+    waterTargetMl: calculateWaterTarget(weightKg),
+    activityLevel,
+    bmr,
+    tdee,
+  };
+}
+import type { Goals, HealthContext, Profile } from "@/types/user";

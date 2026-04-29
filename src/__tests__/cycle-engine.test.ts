@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   estimateCyclePhase,
   estimateNextPeriod,
+  calculateCycleStatus,
   getCycleConfidence,
   getCycleDay,
   getDaysUntilNextPeriod,
@@ -58,4 +59,40 @@ test("getDaysUntilNextPeriod never returns negative", () => {
 test("inferCyclePhase preserves compatibility with logged phase arrays", () => {
   assert.equal(inferCyclePhase([{ phase: "luteal" }]), "luteal");
   assert.equal(inferCyclePhase([]), "unknown");
+});
+
+test("calculateCycleStatus wraps a completed cycle consistently", () => {
+  const status = calculateCycleStatus(
+    {
+      last_period_start: "2026-04-01",
+      average_cycle_length: 28,
+      cycle_regular: "regular",
+    },
+    null,
+    new Date("2026-04-30T00:00:00"),
+  );
+
+  assert.equal(status.cycleDay, 2);
+  assert.equal(status.cyclePhase, "Menstrual");
+  assert.equal(status.cycleLength, 28);
+});
+
+test("calculateCycleStatus keeps late luteal when period has not started", () => {
+  const status = calculateCycleStatus(
+    {
+      last_period_start: "2026-04-01",
+      average_cycle_length: 28,
+      cycle_regular: "irregular",
+    },
+    {
+      date: "2026-05-01",
+      is_period_day: false,
+      period_not_started_yet: true,
+    },
+    new Date("2026-05-01T00:00:00"),
+  );
+
+  assert.equal(status.cycleDay, 31);
+  assert.equal(status.cyclePhase, "Late Luteal");
+  assert.equal(status.overdueDays, 3);
 });

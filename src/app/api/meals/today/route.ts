@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { calculateMacroTargets, calculateRemaining, summarizeMealLogs } from "@/lib/nutrition-engine";
+import { buildUserTargets } from "@/lib/health-engine";
 import { runPersonalizationRules } from "@/lib/safety-rules";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/supabase/helpers";
@@ -57,7 +58,7 @@ export async function GET() {
     targets,
     remaining,
     waterMl: currentWaterMl(ctx),
-    waterTargetMl: rules.waterTargetMl,
+    waterTargetMl: ctx.profile ? buildUserTargets(ctx.profile, ctx.goals, ctx.healthContext).waterTargetMl : rules.waterTargetMl,
     dietPreferences: ctx.dietPreferences,
     healthContext: ctx.healthContext,
     fastingPreferences: ctx.fastingPreferences,

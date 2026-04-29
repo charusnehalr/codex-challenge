@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import {
+  calculateCycleStatus,
   estimateCyclePhase,
-  estimateNextPeriod,
-  getCycleConfidence,
   getCycleDay,
-  getDaysUntilNextPeriod,
 } from "@/lib/cycle-engine";
 import { createClient } from "@/lib/supabase/server";
+import type { NextRequest } from "next/server";
 
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -50,10 +49,7 @@ export async function GET() {
   const lastPeriodStart = cycleProfile?.last_period_start
     ? new Date(`${cycleProfile.last_period_start}T00:00:00`)
     : null;
-  const cycleDay = lastPeriodStart ? getCycleDay(lastPeriodStart, today, cycleLength) : undefined;
-  const cyclePhase = cycleDay ? estimateCyclePhase(cycleDay, cycleLength) : "Unknown";
-  const cycleConfidence = cycleProfile ? getCycleConfidence(cycleProfile.cycle_regular ?? "unsure") : "medium";
-  const nextPeriod = lastPeriodStart ? estimateNextPeriod(lastPeriodStart, cycleLength) : undefined;
+  const cycleStatus = calculateCycleStatus(cycleProfile, todayLogResult.data, today);
   const logs = (logsResult.data ?? []).map((log) => {
     const logDate = new Date(`${log.date}T00:00:00`);
     const logCycleDay = lastPeriodStart ? getCycleDay(lastPeriodStart, logDate, cycleLength) : undefined;
@@ -69,10 +65,53 @@ export async function GET() {
     cycleProfile,
     todayLog: todayLogResult.data,
     logs,
-    cycleDay,
-    cyclePhase,
-    cycleConfidence,
-    nextPeriodEstimate: nextPeriod ? isoDate(nextPeriod) : undefined,
-    daysUntilNextPeriod: nextPeriod ? getDaysUntilNextPeriod(nextPeriod, today) : undefined,
+    cycleStatus,
+    cycleDay: cycleStatus.cycleDay || undefined,
+    cyclePhase: cycleStatus.cyclePhase,
+    cycleConfidence: cycleStatus.confidence,
+    nextPeriodEstimate: cycleStatus.nextPeriodDate ? isoDate(cycleStatus.nextPeriodDate) : undefined,
+    daysUntilNextPeriod: cycleStatus.daysUntilNextPeriod,
+  });
+}
+
+export async function PATCH(request: NextRequest) {
+  const body = (await request.json()) as { last_period_start?: string };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Authentication is required." }, { status: 401 });
+  }
+
+  if (!body.last_period_start) {
+    return NextResponse.json({ error: "last_period_start is required." }, { status: 400 });
+  }
+
+  const result = await supabase.from("cycle_profile").upsert(
+    {
+      user_id: user.id,
+      last_period_start: body.last_period_start,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" },
+  );
+
+  if (result.error) {
+    return NextResponse.json({ error: result.error.message }, { status: 500 });
+  }
+
+  const profileResult = await supabase.from("cycle_profile").select("*").eq("user_id", user.id).maybeSingle();
+  const logResult = await supabase
+    .from("cycle_logs")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("date", body.last_period_start)
+    .maybeSingle();
+
+  return NextResponse.json({
+    success: true,
+    newCycleStatus: calculateCycleStatus(profileResult.data, logResult.data, new Date(`${body.last_period_start}T00:00:00`)),
   });
 }

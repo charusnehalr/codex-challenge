@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { calculateSetupProgress } from "@/lib/setup-progress";
+import { formatHealthLabel } from "@/lib/format-labels";
+import { calculateCycleStatus } from "@/lib/cycle-engine";
+import { buildUserTargets } from "@/lib/health-engine";
 import { runPersonalizationRules } from "@/lib/safety-rules";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/supabase/helpers";
@@ -30,7 +33,8 @@ function todayIsoDate() {
 }
 
 function readableGoal(goal?: string | null) {
-  return goal ? goal.replaceAll("_", " ") : undefined;
+  const formatted = goal ? formatHealthLabel(goal) : "";
+  return formatted || undefined;
 }
 
 function getHealthContextLabels(context: HealthContext | null) {
@@ -64,6 +68,11 @@ function getFitnessOptions(context: UserContext) {
 
 function getCycleNote(phase?: string) {
   const notes: Record<string, string> = {
+    Menstrual: "Rest and gentle movement may fit this phase.",
+    Follicular: "Rising energy may support strength training.",
+    Ovulation: "Many women notice higher energy around ovulation.",
+    Luteal: "Energy, mood, and cravings may shift in this phase.",
+    "Late Luteal": "Your cycle may be running longer than average.",
     menstrual: "Rest and gentle movement may fit this phase.",
     follicular: "Rising energy may support strength training.",
     ovulatory: "Many women notice higher energy around ovulation.",
@@ -153,6 +162,7 @@ export async function GET() {
   const todaysMeals = context.mealLogs.filter((meal) => meal.date === today);
   const latestDailyLog = context.dailyLogs[0] ?? null;
   const todayCycleLog = context.cycleLogs.find((log) => log.date === today) ?? null;
+  const cycleStatus = calculateCycleStatus(context.cycleProfile, todayCycleLog, new Date(`${today}T00:00:00`));
   const todayWorkout = context.workoutLogs.find((workout) => workout.date === today) ?? null;
   const planRules = runPersonalizationRules({
     healthContext: context.healthContext,
@@ -163,6 +173,18 @@ export async function GET() {
     todayEnergyScore: context.todayEnergyScore,
     todayPainScore: todayCycleLog?.pain_score ?? undefined,
   });
+  const userTargets = context.profile ? buildUserTargets(context.profile, context.goals, context.healthContext) : null;
+  if (
+    process.env.NODE_ENV === "development" &&
+    userTargets &&
+    planRules.calorieTarget &&
+    planRules.calorieTarget !== userTargets.calorieTarget
+  ) {
+    console.warn("[Data consistency] Dashboard target differs from Analysis target", {
+      dashboardRulesTarget: planRules.calorieTarget,
+      sharedTarget: userTargets.calorieTarget,
+    });
+  }
   const caloriesConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.calories ?? 0), 0);
   const proteinConsumed = todaysMeals.reduce((sum, meal) => sum + (meal.protein_g ?? 0), 0);
   const waterMl = latestDailyLog?.date === today ? latestDailyLog.water_ml ?? 0 : 0;
@@ -180,16 +202,19 @@ export async function GET() {
   const workoutCompleted = Boolean(todayWorkout?.completed);
   const mealsContain = (mealType: string) => todaysMeals.some((meal) => meal.meal_type === mealType);
   const factors = [
-    dietType ? `your ${dietType} diet` : "",
+    dietType ? `your ${formatHealthLabel(dietType)} diet` : "",
     healthContext.length ? `${healthContext.slice(0, 2).join(" and ")} context` : "",
-    context.currentCyclePhase ? `estimated ${context.currentCyclePhase} phase` : "",
+    cycleStatus.cyclePhase !== "Unknown" ? `estimated ${cycleStatus.cyclePhase} phase` : "",
   ].filter(Boolean);
 
   const response: DashboardResponse = {
+    profileName: context.profile?.name ?? undefined,
     setupProgress,
     personalizationFactors: {
-      cyclePhase: context.currentCyclePhase,
-      cycleConfidence: context.cycleConfidence,
+      cyclePhase: cycleStatus.cyclePhase,
+      cycleDay: cycleStatus.cycleDay || undefined,
+      cycleLength: cycleStatus.cycleLength,
+      cycleConfidence: cycleStatus.confidence,
       goal,
       dietType,
       healthContext,
@@ -199,13 +224,13 @@ export async function GET() {
       fastingWindow,
     },
     todayPlan: {
-      calorieTarget: planRules.calorieTarget,
-      proteinTarget: planRules.proteinTarget,
-      waterTargetMl: planRules.waterTargetMl,
+      calorieTarget: userTargets?.calorieTarget ?? planRules.calorieTarget,
+      proteinTarget: userTargets?.proteinTarget ?? planRules.proteinTarget,
+      waterTargetMl: userTargets?.waterTargetMl ?? planRules.waterTargetMl,
       workoutName: todayWorkout?.workout_name ?? planRules.workoutName,
       backupWorkout: planRules.backupWorkout,
       mealFocus: planRules.mealFocus,
-      cycleNote: getCycleNote(context.currentCyclePhase),
+      cycleNote: getCycleNote(cycleStatus.cyclePhase),
       conditionNotes: healthContext.map((label) => `${label} was considered in today's plan.`),
     },
     logs: {

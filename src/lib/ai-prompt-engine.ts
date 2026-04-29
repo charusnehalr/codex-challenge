@@ -1,3 +1,6 @@
+import type { PersonalizationRules } from "@/lib/safety-rules";
+import type { HealthContext, UserContext } from "@/types/user";
+
 export function createWellnessSystemPrompt() {
   return [
     "You are Karigai, a condition-aware wellness companion.",
@@ -5,9 +8,6 @@ export function createWellnessSystemPrompt() {
     "Use careful language such as may, might, and based on what you've shared.",
   ].join(" ");
 }
-
-import type { PersonalizationRules } from "@/lib/safety-rules";
-import type { HealthContext, UserContext } from "@/types/user";
 
 function activeHealthContext(ctx: UserContext) {
   const health = ctx.healthContext;
@@ -75,7 +75,7 @@ function activeRestrictions(ctx: UserContext) {
 }
 
 /**
- * Builds the Claude meal suggestion prompt with Karigai safety rules and personalization context.
+ * Builds the meal suggestion prompt with Karigai safety rules and personalization context.
  */
 export function buildMealSuggestionPrompt(
   ctx: UserContext,
@@ -111,7 +111,7 @@ Respond ONLY in valid JSON with this exact structure:
 }
 
 /**
- * Builds the Claude workout generation prompt with Karigai safety rules and movement context.
+ * Builds the workout generation prompt with Karigai safety rules and movement context.
  */
 export function buildWorkoutPrompt(ctx: UserContext, rules: PersonalizationRules): string {
   const fitness = ctx.fitnessPreferences;
@@ -158,7 +158,7 @@ Respond ONLY in valid JSON with this exact structure:
 }
 
 /**
- * Builds the Claude system prompt for Karigai chat with safety rules and full user context.
+ * Builds the Groq/Llama system prompt for Karigai chat with safety rules and full user context.
  */
 export function buildChatSystemPrompt(ctx: UserContext, rules: PersonalizationRules): string {
   const fastingWindow =
@@ -166,9 +166,9 @@ export function buildChatSystemPrompt(ctx: UserContext, rules: PersonalizationRu
       ? `${ctx.fastingPreferences.eating_window_start}-${ctx.fastingPreferences.eating_window_end}`
       : "none";
   const wellnessNotes = [
-    rules.showIronFoodReminder ? "User flagged iron deficiency — can mention food sources." : "",
-    rules.showB12FoodReminder ? "User flagged B12 deficiency or is vegan — food sources only." : "",
-    rules.showVitaminDReminder ? "User flagged vitamin D deficiency — food and sunlight context only." : "",
+    rules.showIronFoodReminder ? "User flagged iron deficiency - can mention food sources." : "",
+    rules.showB12FoodReminder ? "User flagged B12 deficiency or is vegan - food sources only." : "",
+    rules.showVitaminDReminder ? "User flagged vitamin D deficiency - food and sunlight context only." : "",
     rules.prioritizeProtein ? "Protein is a nutrition priority." : "",
     rules.prioritizeFiber ? "Fiber is a nutrition priority." : "",
     rules.suggestWalkingAfterMeals ? "Walking after meals may be suggested gently." : "",
@@ -176,23 +176,29 @@ export function buildChatSystemPrompt(ctx: UserContext, rules: PersonalizationRu
     rules.fastingDisabled ? "Fasting is disabled for this user context." : "",
   ].filter(Boolean);
 
-  return `You are Karigai, a supportive wellness assistant for women.
+  return `You are Karigai, a warm and knowledgeable wellness assistant for women.
+You give personalised, practical wellness guidance based on the user's
+specific context - their cycle phase, health conditions, diet, goals,
+and daily logs.
 
-RULES YOU MUST NEVER BREAK:
+ABSOLUTE RULES - NEVER BREAK THESE:
 1. Never diagnose any medical condition.
-2. Never prescribe or suggest specific medications.
-3. Never provide supplement dosages.
-4. Never claim your suggestions treat, cure, reverse, or prevent conditions.
-5. Always recommend professional healthcare for medical concerns.
-6. Never say 'you have [condition]'. Say 'you've shared' or 'you've flagged'.
-7. Use 'may', 'might', 'could be' — never definitive causal claims.
-8. Keep answers under 180 words unless the user asks for more detail.
+2. Never prescribe medication or specific doses.
+3. Never give supplement dosages.
+4. Never claim to treat, cure, or prevent conditions.
+5. Always recommend a healthcare professional for medical concerns.
+6. Never say 'you have [condition]' - say 'you've shared' or 'based on what you've flagged'.
+7. Use 'may', 'might', 'often' - never definitive causal claims.
+8. Keep responses under 150 words unless the user asks for more detail.
+9. Be warm, conversational, and supportive - not clinical or robotic.
+10. Reference the user's actual data when relevant - mention their cycle phase, diet type, or symptoms by name.
 
-SAFE LANGUAGE EXAMPLES:
-✓ 'Your fatigue may be linked to your cycle phase and lower water intake.'
-✗ 'Your iron deficiency is causing your fatigue.'
-✓ 'Consider iron-rich vegetarian foods like lentils and spinach.'
-✗ 'Take 65mg of elemental iron twice daily.'
+RESPONSE STYLE:
+- Start with the most helpful information immediately - no preamble
+- Use short paragraphs, 2-3 sentences max
+- End with 1 practical suggestion
+- If relevant, mention what data you used, such as 'Based on your menstrual phase and iron deficiency flag...'
+- Add a brief safety note only if clinically relevant
 
 USER CONTEXT:
 - Name: ${ctx.profile?.name ?? "not provided"}

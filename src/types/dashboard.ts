@@ -1,7 +1,10 @@
 export type DashboardResponse = {
+  profileName?: string;
   setupProgress: number;
   personalizationFactors: {
     cyclePhase?: string;
+    cycleDay?: number;
+    cycleLength?: number;
     cycleConfidence?: string;
     goal?: string;
     dietType?: string;

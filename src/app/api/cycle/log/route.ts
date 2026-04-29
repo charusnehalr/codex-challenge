@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
   const body = (await request.json()) as {
     date?: string;
     isPeriodDay?: boolean;
+    confirmedStart?: boolean;
+    periodNotStartedYet?: boolean;
     flowLevel?: string;
     painScore?: number;
     symptoms?: string[];
@@ -33,6 +35,7 @@ export async function POST(request: NextRequest) {
       user_id: user.id,
       date,
       is_period_day: body.isPeriodDay ?? false,
+      period_not_started_yet: body.periodNotStartedYet ?? false,
       flow_level: body.flowLevel,
       pain_score: body.painScore,
       symptoms: body.symptoms ?? [],
@@ -45,6 +48,21 @@ export async function POST(request: NextRequest) {
 
   if (cycleResult.error) {
     return NextResponse.json({ error: cycleResult.error.message }, { status: 500 });
+  }
+
+  if (body.confirmedStart && body.isPeriodDay) {
+    const profileResult = await supabase.from("cycle_profile").upsert(
+      {
+        user_id: user.id,
+        last_period_start: date,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+
+    if (profileResult.error) {
+      return NextResponse.json({ error: profileResult.error.message }, { status: 500 });
+    }
   }
 
   const dailyResult = await supabase.from("daily_logs").upsert(

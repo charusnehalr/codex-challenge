@@ -1,4 +1,4 @@
-import { calculateBMR, calculateCalorieTarget, calculateProteinTarget } from "@/lib/health-engine";
+import { buildUserTargets } from "@/lib/health-engine";
 import type { MealLog, UserContext } from "@/types/user";
 
 export type MacroTargets = {
@@ -22,19 +22,21 @@ export type NutritionSummary = {
  * Calculates macro targets from profile, goal, thyroid context, and activity context.
  */
 export function calculateMacroTargets(ctx: UserContext): MacroTargets {
-  const weightKg = ctx.profile?.weight_kg ?? 68;
-  const heightCm = ctx.profile?.height_cm ?? 163;
-  const age = ctx.profile?.age ?? 28;
-  const bmr = calculateBMR({ weightKg, heightCm, age });
-  const activityMultiplier = (ctx.fitnessPreferences?.workout_days_per_week ?? 0) >= 4 ? 1.55 : 1.375;
-  const tdee = Math.round(bmr * activityMultiplier);
-  const goal = ctx.goals?.primary_goal ?? "maintain";
-  const calories = calculateCalorieTarget({
-    tdee,
-    goal,
-    hasThyroidCondition: Boolean(ctx.healthContext?.has_thyroid_condition),
-  });
-  const proteinG = calculateProteinTarget(weightKg, goal);
+  const fallbackProfile = {
+    id: "",
+    user_id: "",
+    name: null,
+    age: 28,
+    height_cm: 163,
+    weight_kg: 68,
+    unit_system: "metric",
+    country: null,
+    created_at: "",
+    updated_at: "",
+  };
+  const targets = buildUserTargets(ctx.profile ?? fallbackProfile, ctx.goals, ctx.healthContext);
+  const calories = targets.calorieTarget;
+  const proteinG = targets.proteinTarget;
   const fatG = Math.round((calories * 0.28) / 9);
   const carbsG = Math.max(0, Math.round((calories - proteinG * 4 - fatG * 9) / 4));
   const fiberG = calories >= 1800 ? 35 : 25;
