@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #F5EFE6;
+  --color-paper: #FAF6EF;
+  --color-card: #FFFFFF;
+  --color-shell: #EFE7DA;
+  --color-bone: #E8DCC8;
+  --color-hairline: #E5DCCB;
+  --color-ink: #1F1B16;
+  --color-ink2: #3A332B;
+  --color-inkSurf: #2B261F;
+  --color-inkLine: #4A4036;
+  --color-muted: #7A7066;
+  --color-clay: #B8704F;
+  --color-claySoft: #E9C8B5;
+  --color-sage: #7A8B6F;
+  --color-sageSoft: #CFD4C3;
+  --color-blush: #E8B4A8;
+  --color-amber: #C99356;
+  --color-alert: #C25450;
+  --font-display: "Instrument Serif", serif;
+  --font-body: "Geist", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  --radius-card: 18px;
+  --radius-chip: 999px;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #FAF6EF;
+}
+
+body {
+  color: var(--color-ink);
+  font-family: "Geist", sans-serif;
+}
