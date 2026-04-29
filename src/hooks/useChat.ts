@@ -20,6 +20,12 @@ type ApiChatMessage = {
   context_snapshot?: { safetyNote?: string } | null;
 };
 
+type ChatApiResponse = {
+  answer?: string;
+  safetyNote?: string;
+  error?: string;
+};
+
 function safetyNoteFor(answer: string) {
   const lower = answer.toLowerCase();
   const triggers = ["pain", "bleeding", "severe", "mental health", "eating disorder", "medication", "medicine"];
@@ -97,34 +103,22 @@ export function useChat() {
         body: JSON.stringify({ message: trimmed, history }),
       });
 
-      if (!response.ok || !response.body) {
-        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      const payload = (await response.json().catch(() => ({}))) as ChatApiResponse;
+
+      if (!response.ok) {
         throw new Error(payload.error ?? "Chat request failed");
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        const chunk = decoder.decode(value, { stream: true });
-        accumulated += chunk;
-        setMessages((current) =>
-          current.map((messageItem) =>
-            messageItem.id === assistantMessageId ? { ...messageItem, content: accumulated } : messageItem,
-          ),
-        );
-      }
-
-      const safetyNote = safetyNoteFor(accumulated);
+      const answer = payload.answer ?? "No response received.";
       setMessages((current) =>
         current.map((messageItem) =>
           messageItem.id === assistantMessageId
-            ? { ...messageItem, content: accumulated, safetyNote, isStreaming: false }
+            ? {
+                ...messageItem,
+                content: answer,
+                safetyNote: payload.safetyNote ?? safetyNoteFor(answer),
+                isStreaming: false,
+              }
             : messageItem,
         ),
       );

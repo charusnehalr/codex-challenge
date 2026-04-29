@@ -1,4 +1,3 @@
-import Groq from "groq-sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { buildChatSystemPrompt } from "@/lib/ai-prompt-engine";
 import { runPersonalizationRules } from "@/lib/safety-rules";
@@ -14,6 +13,44 @@ type ChatPayload = {
   message?: string;
   history?: ChatHistoryItem[];
 };
+
+type GroqMessage = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+type GroqResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+};
+
+async function callGroqAPI(messages: GroqMessage[]) {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      max_tokens: 600,
+      temperature: 0.7,
+      stream: false,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Groq API error: ${response.status} ${errorText}`);
+  }
+
+  const data = (await response.json()) as GroqResponse;
+  return data.choices?.[0]?.message?.content ?? "No response received.";
+}
 
 function safetyNoteFor(answer: string) {
   const lower = answer.toLowerCase();
@@ -105,53 +142,20 @@ export async function POST(request: NextRequest) {
       context_snapshot: null,
     });
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const stream = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
+    const answer = await callGroqAPI([
         { role: "system", content: systemPrompt },
         ...history,
         { role: "user", content: message },
-      ],
-      max_tokens: 600,
-      temperature: 0.7,
-      stream: true,
+      ]);
+
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      role: "assistant",
+      message: answer,
+      context_snapshot: { safetyNote: safetyNoteFor(answer), provider: "groq", model: "llama-3.3-70b-versatile" },
     });
 
-    const encoder = new TextEncoder();
-    let fullResponse = "";
-
-    const readableStream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of stream) {
-            const text = chunk.choices[0]?.delta?.content ?? "";
-            if (text) {
-              fullResponse += text;
-              controller.enqueue(encoder.encode(text));
-            }
-          }
-
-          await supabase.from("chat_messages").insert({
-            user_id: user.id,
-            role: "assistant",
-            message: fullResponse,
-            context_snapshot: { safetyNote: safetyNoteFor(fullResponse), provider: "groq", model: "llama-3.3-70b-versatile" },
-          });
-          controller.close();
-        } catch (error) {
-          console.error("[Chat API] Stream error:", error);
-          controller.error(error);
-        }
-      },
-    });
-
-    return new Response(readableStream, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "no-cache",
-      },
-    });
+    return NextResponse.json({ answer, safetyNote: safetyNoteFor(answer) });
   } catch (error) {
     console.error("[Chat API] Error:", error);
     return NextResponse.json({ error: "Chat failed. Please try again." }, { status: 500 });
