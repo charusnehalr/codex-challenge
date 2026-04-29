@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     .eq("user_id", user.id)
     .eq("date", today)
     .maybeSingle();
-  const nextWater = (existing.data?.water_ml ?? 0) + (amountMl ?? 0);
+  const nextWater = Math.max(0, (existing.data?.water_ml ?? 0) + (amountMl ?? 0));
   const result = await supabase.from("daily_logs").upsert(
     {
       user_id: user.id,

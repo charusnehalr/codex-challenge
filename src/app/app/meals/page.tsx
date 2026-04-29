@@ -201,7 +201,7 @@ function NutritionTodayCard({ summary, targets }: { summary: NutritionSummary; t
 }
 
 function HydrationCard({ waterMl, targetMl, onChanged }: { waterMl: number; targetMl: number; onChanged: () => void }) {
-  async function add(amountMl: number) {
+  async function updateWater(amountMl: number) {
     if (!(await ensureAuthenticated("signup"))) return;
 
     const response = await fetch("/api/water", {
@@ -222,27 +222,42 @@ function HydrationCard({ waterMl, targetMl, onChanged }: { waterMl: number; targ
   return (
     <Card padding="sm" className="flex h-[180px] flex-col p-4" interactive>
       <Eyebrow>hydration</Eyebrow>
-      <p className="mt-3 font-display text-3xl leading-none text-[#6B8AA8]">{formatNumber(waterMl)}</p>
-      <p className="mt-1 whitespace-nowrap font-mono text-xs text-muted">of {formatNumber(targetMl)}ml</p>
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-shell">
-        <motion.div
-          className="h-full rounded-full bg-[#6B8AA8]"
-          initial={{ width: 0 }}
-          animate={{ width: `${percent(waterMl, targetMl) * 100}%` }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        />
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-3xl leading-none text-[#6B8AA8]">{formatNumber(waterMl)}</p>
+          <p className="mt-1 whitespace-nowrap font-mono text-xs text-muted">of {formatNumber(targetMl)}ml</p>
+        </div>
+        <div className="rounded-full bg-[#6B8AA8]/10 px-3 py-1 font-mono text-[10px] text-[#6B8AA8]">
+          {Math.round(percent(waterMl, targetMl) * 100)}%
+        </div>
       </div>
-      <div className="mt-auto grid grid-cols-2 gap-2">
-        {[250, 500].map((amount) => (
-          <button
+      <div className="mt-4 space-y-1">
+        <div className="h-3 overflow-hidden rounded-full bg-shell shadow-inner">
+          <motion.div
+            className="h-full rounded-full bg-[#6B8AA8]"
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(100, percent(waterMl, targetMl) * 100)}%` }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </div>
+        <div className="flex justify-between font-mono text-[9px] text-muted">
+          <span>0ml</span>
+          <span>{formatNumber(targetMl)}ml goal</span>
+        </div>
+      </div>
+      <div className="mt-auto grid grid-cols-4 gap-1.5">
+        {[-500, -250, 250, 500].map((amount) => (
+          <motion.button
             key={amount}
             type="button"
             data-cursor-hover
-            onClick={() => void add(amount)}
-            className="h-8 rounded-xl border border-[#6B8AA8]/20 bg-[#6B8AA8]/10 font-body text-xs text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            onClick={() => void updateWater(amount)}
+            className="h-8 rounded-xl border border-[#6B8AA8]/20 bg-[#6B8AA8]/10 font-body text-[11px] text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
           >
-            +{amount}ml
-          </button>
+            {amount > 0 ? "+" : "-"} {Math.abs(amount)}
+          </motion.button>
         ))}
       </div>
     </Card>

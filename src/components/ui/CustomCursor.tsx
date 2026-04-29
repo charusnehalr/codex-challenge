@@ -101,6 +101,7 @@ export function CustomCursor() {
           pointerEvents: "none",
           zIndex: 99999,
           willChange: "transform",
+          transform: "translate(-103px, -103px)",
           transition: "opacity 0.15s",
         }}
       />
@@ -117,6 +118,7 @@ export function CustomCursor() {
           pointerEvents: "none",
           zIndex: 99998,
           willChange: "transform",
+          transform: "translate(-116px, -116px)",
           transition: "width 0.2s, height 0.2s, opacity 0.15s",
         }}
       />

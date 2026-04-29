@@ -91,13 +91,13 @@ function DashboardCard({ children, className }: { children: ReactNode; className
 }
 
 function TinyRing({ value, color = "#B8704F" }: { value: number; color?: string }) {
-  const size = 28;
-  const stroke = 4;
+  const size = 34;
+  const stroke = 4.5;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <span className="grid size-8 place-items-center rounded-full bg-shell/40">
+    <span className="grid size-10 place-items-center rounded-full bg-shell/40">
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#EFE7DA" strokeWidth={stroke} />
         <motion.circle
@@ -132,7 +132,7 @@ function PlanRow({
   side?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[20px_1fr_auto_32px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
+    <div className="grid grid-cols-[20px_1fr_auto_40px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
       <span className="grid place-items-center">{icon}</span>
       <div className="min-w-0">
         <p className="font-mono text-[9px] uppercase tracking-widest text-muted">{label}</p>
@@ -216,7 +216,7 @@ function describeArc(startAngle: number, endAngle: number, radius: number) {
 function CyclePhaseCard({ data }: { data: DashboardResponse }) {
   const phase = normalizePhase(data.personalizationFactors.cyclePhase);
   const day = data.personalizationFactors.cycleDay ?? 1;
-  const dot = polarToCartesian(38, (Math.min(28, Math.max(1, day)) / 28) * 360);
+  const dot = polarToCartesian(43, (Math.min(28, Math.max(1, day)) / 28) * 360);
   let angle = 0;
 
   return (
@@ -227,8 +227,14 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
           {data.personalizationFactors.cycleConfidence ?? "medium"}
         </Chip>
       </div>
-      <div className="flex flex-1 items-center justify-center">
-        <svg viewBox="0 0 120 120" className="size-[100px]">
+      <div className="flex flex-1 items-center justify-center py-1">
+        <motion.svg
+          viewBox="0 0 120 120"
+          className="size-[155px]"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        >
           {phaseMeta.map((item) => {
             const start = angle;
             const end = angle + (item.days / 28) * 360;
@@ -236,9 +242,9 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
             return (
               <path
                 key={item.name}
-                d={describeArc(start, end - 2, 38)}
+                d={describeArc(start, end - 2, 43)}
                 fill="none"
-                strokeWidth={item.name === phase ? 12 : 9}
+                strokeWidth={item.name === phase ? 15 : 12}
                 strokeLinecap="round"
                 className={cn(item.strokeClassName, item.name === phase ? "opacity-100" : "opacity-45")}
               />
@@ -246,15 +252,15 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
           })}
           {data.personalizationFactors.cycleDay ? (
             <g>
-              <motion.circle cx={dot.x} cy={dot.y} r={8} className="fill-clay opacity-20" animate={{ scale: [1, 1.35, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-              <circle cx={dot.x} cy={dot.y} r={5} className="fill-card stroke-clay" strokeWidth={2} />
-              <circle cx={dot.x} cy={dot.y} r={2.5} className="fill-clay" />
+              <motion.circle cx={dot.x} cy={dot.y} r={9} className="fill-clay opacity-20" animate={{ scale: [1, 1.45, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+              <circle cx={dot.x} cy={dot.y} r={5.5} className="fill-card stroke-clay" strokeWidth={2.2} />
+              <circle cx={dot.x} cy={dot.y} r={2.8} className="fill-clay" />
             </g>
           ) : null}
           <text x="60" y="58" textAnchor="middle" className="fill-ink font-display text-[14px] italic">
             {phase}
           </text>
-        </svg>
+        </motion.svg>
       </div>
       <p className="text-center font-mono text-xs uppercase tracking-widest text-muted">
         {data.personalizationFactors.cycleDay ? `Day ${data.personalizationFactors.cycleDay} · ${phase}` : "Add cycle info"}
@@ -311,10 +317,14 @@ function PersonalisationCard({ data }: { data: DashboardResponse }) {
 
 function MiniNutritionRing({ label, sublabel, value, color, caption }: { label: string; sublabel: string; value: number; color: string; caption: string }) {
   return (
-    <div className="flex min-w-[80px] flex-col items-center gap-1 text-center">
-      <ProgressRing value={value} size={56} stroke={5} color={color} label={label} sublabel={sublabel} />
-      <p className="font-mono text-[9px] text-muted">{caption}</p>
-    </div>
+    <motion.div
+      className="flex min-w-[104px] flex-col items-center gap-1.5 text-center"
+      whileHover={{ scale: 1.04 }}
+      transition={{ type: "spring", stiffness: 420, damping: 28 }}
+    >
+      <ProgressRing value={value} size={74} stroke={7} color={color} label={label} sublabel={sublabel} />
+      <p className="font-mono text-[10px] text-muted">{caption}</p>
+    </motion.div>
   );
 }
 
@@ -326,7 +336,7 @@ function NutritionCard({ data }: { data: DashboardResponse }) {
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">nutrition today</p>
-      <div className="mt-3 flex justify-evenly gap-2">
+      <div className="mt-4 flex flex-1 items-center justify-evenly gap-3">
         <MiniNutritionRing label={`${formatInt(data.logs.caloriesConsumed)}`} sublabel="kcal" value={percent(data.logs.caloriesConsumed, calorieTarget)} color="#B8704F" caption={`${formatInt(data.logs.caloriesConsumed)} / ${formatInt(calorieTarget)}`} />
         <MiniNutritionRing label={`${formatInt(data.logs.proteinConsumed)}`} sublabel="g" value={percent(data.logs.proteinConsumed, proteinTarget)} color="#7A8B6F" caption={`${formatInt(data.logs.proteinConsumed)} / ${formatInt(proteinTarget)}`} />
         <MiniNutritionRing label={waterDisplay(data.logs.waterMl)} sublabel="water" value={percent(data.logs.waterMl, waterTarget)} color="#6B8AA8" caption={`${formatInt(data.logs.waterMl)} / ${formatInt(waterTarget)}`} />
@@ -352,7 +362,7 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
   async function addWater(amountMl: number) {
     if (!(await ensureAuthenticated("signup"))) return;
     const previous = optimisticWater;
-    setOptimisticWater((current) => current + amountMl);
+    setOptimisticWater((current) => Math.max(0, current + amountMl));
     const response = await fetch("/api/water", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -373,24 +383,36 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">hydration</p>
-      <div className="mt-2 flex flex-1 flex-col gap-2 overflow-hidden">
-        <div className="flex min-h-0 flex-1 items-center justify-between gap-3">
+      <div className="mt-1.5 flex flex-1 flex-col gap-2 overflow-hidden">
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-4xl leading-none text-ink">{waterDisplay(optimisticWater)}</p>
-            <p className="mt-0.5 whitespace-nowrap font-mono text-xs text-muted">of {formatInt(target)}ml</p>
+            <p className="font-display text-3xl leading-none text-ink">{waterDisplay(optimisticWater)}</p>
+            <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-muted">of {formatInt(target)}ml</p>
           </div>
-          <motion.div animate={{ scale: waterPulse ? [1, 1.1, 1] : 1 }} transition={{ duration: 0.3 }}>
-            <ProgressRing value={percent(optimisticWater, target)} size={56} stroke={6} color="#6B8AA8" track="#EFE7DA" />
+          <motion.div
+            animate={{ scale: waterPulse ? [1, 1.08, 1] : 1 }}
+            transition={{ duration: 0.3 }}
+            className="rounded-full bg-[#6B8AA8]/10 px-2.5 py-1 font-mono text-[10px] text-[#6B8AA8]"
+          >
+            {Math.round(percent(optimisticWater, target) * 100)}%
           </motion.div>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-shell">
-          <div
-            className="h-full rounded-full bg-[#6B8AA8] transition-all duration-700"
-            style={{ width: `${Math.min(100, percent(optimisticWater, target) * 100)}%` }}
-          />
+        <div className="space-y-0.5">
+          <div className="h-2.5 overflow-hidden rounded-full bg-shell shadow-inner">
+            <motion.div
+              className="h-full rounded-full bg-[#6B8AA8]"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, percent(optimisticWater, target) * 100)}%` }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
+          <div className="flex justify-between font-mono text-[8px] text-muted">
+            <span>0ml</span>
+            <span>{formatInt(target)}ml goal</span>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 pb-1">
-          {[250, 500].map((amount) => (
+        <div className="grid grid-cols-4 gap-1.5">
+          {[-500, -250, 250, 500].map((amount) => (
             <motion.button
               key={amount}
               type="button"
@@ -398,9 +420,9 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
               onClick={() => void addWater(amount)}
-              className="h-8 rounded-xl border border-[#6B8AA8]/20 bg-[#EFF3F8] font-body text-xs text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
+              className="h-7 rounded-xl border border-[#6B8AA8]/20 bg-[#EFF3F8] font-body text-[10px] text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
             >
-              + {amount}ml
+              {amount > 0 ? "+" : "-"}{Math.abs(amount)}
             </motion.button>
           ))}
         </div>
@@ -408,7 +430,6 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
     </DashboardCard>
   );
 }
-
 function WorkoutCard({ data }: { data: DashboardResponse }) {
   const queryClient = useQueryClient();
   const addToast = useToastStore((state) => state.addToast);
@@ -436,25 +457,25 @@ function WorkoutCard({ data }: { data: DashboardResponse }) {
   return (
     <DashboardCard className="flex flex-col p-4">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">workout today</p>
-      <h3 className="mt-2 line-clamp-1 font-body text-base font-semibold text-ink">{data.todayPlan.workoutName ?? "Gentle cycle support"}</h3>
-      <div className="mb-2 mt-2 flex gap-1.5">
-        <Chip tone="neutral" className="h-6 px-2 text-[10px]">45 min</Chip>
-        <Chip tone="neutral" className="h-6 px-2 text-[10px]">moderate</Chip>
+      <h3 className="mt-1 line-clamp-1 font-body text-sm font-semibold leading-tight text-ink">{data.todayPlan.workoutName ?? "Gentle cycle support"}</h3>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        <Chip tone="neutral" className="h-5 px-2 text-[9px]">45 min</Chip>
+        <Chip tone="neutral" className="h-5 px-2 text-[9px]">moderate</Chip>
       </div>
-      <p className="mt-2 truncate font-mono text-[10px] text-muted" title="Walking · Yoga · Stretching">Walking · Yoga · Stretching</p>
-      <div className="mt-auto flex items-center gap-2">
+      <p className="mt-1.5 truncate font-mono text-[9px] leading-tight text-muted" title="Walking · Yoga · Stretching">Walking · Yoga · Stretching</p>
+      <div className="mt-auto flex items-center gap-2 pt-2">
         {completed ? (
-          <Chip tone="sage" className="h-8 flex-1 justify-center">Completed today ✓</Chip>
+          <Chip tone="sage" className="h-8 min-w-0 flex-1 justify-center truncate px-2 text-[11px]">Completed today ✓</Chip>
         ) : (
-          <button type="button" data-cursor-hover onClick={() => void completeWorkout()} className="h-9 min-w-0 flex-1 whitespace-nowrap rounded-xl bg-clay px-3 font-body text-xs text-cream shadow-[0_2px_12px_rgba(184,112,79,0.25)]">
+          <button type="button" data-cursor-hover onClick={() => void completeWorkout()} className="h-8 min-w-0 flex-1 whitespace-nowrap rounded-xl bg-clay px-3 font-body text-xs text-cream shadow-[0_2px_12px_rgba(184,112,79,0.25)]">
             Mark complete
           </button>
         )}
-        <Link href="/app/workout" className="grid h-9 w-16 place-items-center rounded-xl border border-hairline bg-shell font-body text-xs text-ink transition-colors hover:bg-card">
+        <Link href="/app/workout" className="grid h-8 w-16 shrink-0 place-items-center whitespace-nowrap rounded-xl border border-hairline bg-shell font-body text-xs text-ink transition-colors hover:bg-card">
           View →
         </Link>
       </div>
-      <p className="mt-2 truncate font-body text-[10px] text-muted">Backup: {data.todayPlan.backupWorkout ?? "20-min walk"}</p>
+      <p className="mt-1.5 truncate font-body text-[9px] leading-tight text-muted">Backup: {data.todayPlan.backupWorkout ?? "20-min walk"}</p>
     </DashboardCard>
   );
 }
@@ -495,17 +516,18 @@ function EnergyCheckInCard() {
         <p className="font-body text-xs font-medium text-ink">
           How are you feeling? <span className="font-normal text-muted">· Tap a number + symptoms</span>
         </p>
-        <div className="mt-4 flex min-w-0 gap-1">
+        <div className="mt-5 flex min-w-0 gap-2">
           {Array.from({ length: 10 }, (_, index) => index + 1).map((score) => (
             <motion.button
               key={score}
               type="button"
               data-cursor-hover
+              whileHover={{ scale: 1.08, y: -1 }}
               whileTap={{ scale: 0.92 }}
-              animate={{ scale: energy === score ? 1.1 : 1 }}
-              transition={{ type: "spring", stiffness: 420, damping: 24 }}
+              animate={{ scale: energy === score ? 1.16 : 1, y: energy === score ? -2 : 0 }}
+              transition={{ type: "spring", stiffness: 430, damping: 24 }}
               onClick={() => setEnergy(score)}
-              className={cn("grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[11px] shadow-sm", energy === score ? "bg-clay text-cream" : "bg-shell text-muted")}
+              className={cn("grid size-[40px] shrink-0 place-items-center rounded-full font-mono text-sm shadow-sm", energy === score ? "bg-clay text-cream shadow-[0_8px_18px_rgba(184,112,79,0.28)]" : "bg-shell text-muted hover:text-ink")}
             >
               {score}
             </motion.button>
