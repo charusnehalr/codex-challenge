@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Activity } from "lucide-react";
 import { Badge, Card, Chip, EmptyState, PageHeader, QueryError, SafetyBanner, SkeletonCard, StatDisplay } from "@/components/ui";
+import { useAuthModalStore } from "@/store/auth-modal.store";
 
 type AnalysisResponse = {
   bmi?: number;
@@ -90,16 +91,22 @@ function MetricCard({
 export default function AnalysisPage() {
   const [data, setData] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [guest, setGuest] = useState(false);
+  const openModal = useAuthModalStore((state) => state.openModal);
 
   useEffect(() => {
     fetch("/api/analysis")
       .then((response) => {
+        if (response.status === 401) {
+          setGuest(true);
+          return null;
+        }
         if (!response.ok) {
           throw new Error("Unable to load analysis.");
         }
         return response.json() as Promise<AnalysisResponse>;
       })
-      .then(setData)
+      .then((payload) => payload && setData(payload))
       .catch((loadError: unknown) =>
         setError(loadError instanceof Error ? loadError.message : "Unable to load analysis."),
       );
@@ -118,8 +125,18 @@ export default function AnalysisPage() {
         title="Wellness estimates only"
         body="These metrics are calculated from self-reported data. They are not medical measurements or clinical values."
       />
+      {guest ? (
+        <Card className="min-h-72">
+          <EmptyState
+            icon={<Activity className="size-8" />}
+            title="Sign in to see your analysis"
+            body="Your wellness estimates (BMI, BMR, cycle phase) appear here after setup."
+            action={{ label: "Sign in", onClick: () => openModal("login") }}
+          />
+        </Card>
+      ) : null}
       {error ? <QueryError error={new Error(error)} retry={() => window.location.reload()} /> : null}
-      {!data && !error ? (
+      {!data && !error && !guest ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 10 }, (_, index) => <SkeletonCard key={index} />)}
         </div>
@@ -132,7 +149,7 @@ export default function AnalysisPage() {
               {data.missingDataFor.map((item) => <Badge key={item}>{item}</Badge>)}
             </Card>
           ) : null}
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             <MetricCard label="BMI" value={data.bmi} missing="Add height and weight in setup.">
               {data.bmiCategory ? <Chip tone="neutral">{data.bmiCategory}</Chip> : null}
             </MetricCard>

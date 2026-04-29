@@ -1,13 +1,12 @@
 "use client";
 
-import type { ButtonHTMLAttributes } from "react";
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "accent" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = HTMLMotionProps<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -24,7 +23,7 @@ const variants: Record<ButtonVariant, string> = {
 const sizes: Record<ButtonSize, string> = {
   sm: "h-9 rounded-xl px-4 text-xs",
   md: "h-11 rounded-xl px-6 text-sm",
-  lg: "h-13 rounded-2xl px-8 text-base",
+  lg: "h-[52px] rounded-2xl px-8 text-base",
 };
 
 function Spinner() {

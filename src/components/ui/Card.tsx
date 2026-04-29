@@ -1,12 +1,12 @@
 "use client";
 
-import type { HTMLAttributes, ReactNode } from "react";
-import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type CardPadding = "sm" | "md" | "lg";
 
-type CardProps = HTMLAttributes<HTMLDivElement> & {
+type CardProps = HTMLMotionProps<"div"> & {
   children: ReactNode;
   padding?: CardPadding;
   dark?: boolean;
