@@ -1,0 +1,13 @@
+{
+  "name": "karigai",
+  "short_name": "karigai",
+  "description": "Wellness intelligence for women",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6EF",
+  "theme_color": "#B8704F",
+  "icons": [
+    { "src": "/karigai-logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/karigai-logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
