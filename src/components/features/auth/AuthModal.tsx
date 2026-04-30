@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { Button, Input, KarigaiLogo, Modal } from "@/components/ui";
@@ -9,6 +10,7 @@ import { useAuthModalStore } from "@/store/auth-modal.store";
 
 export function AuthModal() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { open, mode, closeModal, setMode } = useAuthModalStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +36,10 @@ export function AuthModal() {
       return;
     }
 
+    queryClient.clear();
     closeModal();
     router.push("/app/dashboard");
+    router.refresh();
     setLoading(false);
   }
 
@@ -55,8 +59,10 @@ export function AuthModal() {
       return;
     }
 
+    queryClient.clear();
     closeModal();
     router.push("/app/dashboard");
+    router.refresh();
     setLoading(false);
   }
 

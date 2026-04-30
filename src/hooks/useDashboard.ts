@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import type { DashboardResponse } from "@/types/dashboard";
 
 async function fetchDashboard() {
@@ -14,8 +15,9 @@ async function fetchDashboard() {
 }
 
 export function useDashboard() {
+  const { user } = useAuth();
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", user?.id ?? "guest"],
     queryFn: fetchDashboard,
   });
 

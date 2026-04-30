@@ -238,17 +238,17 @@ function SetupNav({
 function SetupPageContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const openModal = useAuthModalStore((state) => state.openModal);
   const searchParams = useSearchParams();
   const activeSection = sectionFromParam(searchParams.get("section"));
   const [healthContext, setHealthContext] = useState<Record<string, unknown>>({});
   const { data: progressData } = useQuery({
-    queryKey: ["setupProgress"],
+    queryKey: ["setupProgress", user?.id ?? "guest"],
     queryFn: fetchSetupProgress,
   });
   const { data: profileData } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id ?? "guest"],
     queryFn: fetchProfileData,
     enabled: isAuthenticated,
   });

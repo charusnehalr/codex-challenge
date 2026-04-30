@@ -97,10 +97,10 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }
 export function Sidebar() {
   const router = useRouter();
   const { isOpen, close } = useSidebarStore();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const openModal = useAuthModalStore((state) => state.openModal);
   const { data: progressData } = useQuery({
-    queryKey: ["setupProgress"],
+    queryKey: ["setupProgress", user?.id ?? "guest"],
     queryFn: fetchSetupProgress,
   });
   const navItems = primaryItems(progressData?.setupProgress ?? 0);

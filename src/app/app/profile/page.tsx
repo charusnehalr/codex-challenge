@@ -24,6 +24,7 @@ import { GoalsForm } from "@/components/features/setup/GoalsForm";
 import { HealthContextForm } from "@/components/features/setup/HealthContextForm";
 import type { SetupSectionKey } from "@/components/features/setup/setup-shared";
 import { Card, Chip, Eyebrow, SkeletonCard } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import { formatHealthLabel } from "@/lib/format-labels";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -151,8 +152,9 @@ async function fetchProfile() {
 export default function ProfilePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<SetupSectionKey>("basic_profile");
-  const { data, isLoading, error } = useQuery({ queryKey: ["profile"], queryFn: fetchProfile });
+  const { data, isLoading, error } = useQuery({ queryKey: ["profile", user?.id ?? "guest"], queryFn: fetchProfile });
   const activeConfig = sections.find((section) => section.key === activeSection) ?? sections[0];
   const activeRow = rowForSection(data, activeSection);
   const activeUpdatedAt = updatedAt(activeRow);

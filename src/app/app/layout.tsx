@@ -1,6 +1,7 @@
 import { AuthModal } from "@/components/features/auth/AuthModal";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { AuthStateListener } from "@/components/providers/AuthStateListener";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { CustomCursor, ErrorBoundary, PageTransition, ToastContainer } from "@/components/ui";
 
@@ -13,6 +14,7 @@ export default function ProtectedAppLayout({
     <QueryProvider>
       <ErrorBoundary>
         <div className="flex h-screen w-screen overflow-hidden bg-paper">
+          <AuthStateListener />
           <Sidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <MobileHeader />

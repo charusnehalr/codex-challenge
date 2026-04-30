@@ -6,25 +6,32 @@ import { createClient } from "@/lib/supabase/client";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
+    let active = true;
 
     supabase.auth.getUser().then(({ data }) => {
+      if (!active) {
+        return;
+      }
       setUser(data.user ?? null);
-      setIsLoading(false);
+      setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      setIsLoading(false);
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  return { user, isLoading, isAuthenticated: Boolean(user) };
+  return { user, loading, isLoading: loading, isAuthenticated: Boolean(user) };
 }

@@ -666,10 +666,22 @@ function LoadingDashboard() {
 }
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useDashboard();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const openModal = useAuthModalStore((state) => state.openModal);
   const greet = useMemo(() => greeting(), []);
+
+  useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
+    void Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+      queryClient.invalidateQueries({ queryKey: ["setupProgress"] }),
+    ]);
+  }, [queryClient, user?.id]);
 
   return (
     <div className="flex h-full w-full min-w-0 flex-col overflow-hidden bg-paper p-4">
