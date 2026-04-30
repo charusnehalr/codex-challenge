@@ -571,7 +571,7 @@ function EnergyCheckInCard() {
           How are you feeling? <span className="font-normal text-muted">· Tap a number + symptoms</span>
         </p>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col justify-evenly py-1">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 py-1">
         <div className="flex min-w-0 items-center gap-1.5">
           {Array.from({ length: 10 }, (_, index) => index + 1).map((score) => (
             <motion.button
