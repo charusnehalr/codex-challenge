@@ -12,12 +12,12 @@ export default function ProtectedAppLayout({
   return (
     <QueryProvider>
       <ErrorBoundary>
-        <div className="flex h-screen overflow-hidden bg-paper">
+        <div className="flex h-screen w-screen overflow-hidden bg-paper">
           <Sidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <MobileHeader />
-            <main className="min-w-0 flex-1 overflow-y-auto">
-              <div className="mx-auto w-full max-w-[1320px] min-w-0 px-4 py-8 xl:px-6">
+            <main className="h-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+              <div className="mx-auto h-full w-full max-w-[1320px] min-w-0 px-3 py-3">
                 <PageTransition>{children}</PageTransition>
               </div>
             </main>

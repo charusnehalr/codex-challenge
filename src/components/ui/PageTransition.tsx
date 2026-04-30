@@ -9,7 +9,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <motion.div key={pathname} variants={fadeUp} initial="hidden" animate="visible" className="min-h-full">
+    <motion.div key={pathname} variants={fadeUp} initial="hidden" animate="visible" className="min-h-full h-full">
       {children}
     </motion.div>
   );

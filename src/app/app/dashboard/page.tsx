@@ -83,7 +83,7 @@ function DashboardCard({ children, className }: { children: ReactNode; className
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className={cn("h-full min-w-0 overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
+      className={cn("dashboard-card h-full min-w-0 overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
     >
       {children}
     </motion.div>
@@ -152,7 +152,7 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
+      className="dashboard-card relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
     >
       <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between">
@@ -226,10 +226,11 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
           {data.personalizationFactors.cycleConfidence ?? "medium"}
         </Chip>
       </div>
-      <div className="flex flex-1 items-center justify-center py-1">
+      <div className="flex min-w-0 flex-1 items-center justify-center py-1">
         <motion.svg
           viewBox="0 0 120 120"
-          className="size-[155px]"
+          preserveAspectRatio="xMidYMid meet"
+          className="h-auto w-full max-w-[145px]"
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -647,7 +648,7 @@ function ChecklistCard({ data }: { data: DashboardResponse }) {
 
 function LoadingDashboard() {
   return (
-    <div className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-[calc(100vh-7.25rem)] xl:max-h-[900px] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
       {Array.from({ length: 8 }, (_, index) => <SkeletonCard key={index} />)}
     </div>
   );
@@ -660,7 +661,7 @@ export default function DashboardPage() {
   const greet = useMemo(() => greeting(), []);
 
   return (
-    <div className="-mb-8 -mt-6 min-w-0 space-y-3 overflow-x-hidden bg-paper xl:h-[calc(100vh-2rem)] xl:max-h-[900px] xl:overflow-hidden md:-mx-4 md:-mb-10 md:-mt-7">
+    <div className="flex h-full w-full min-w-0 flex-col overflow-y-auto overflow-x-hidden bg-paper xl:overflow-hidden">
       {!authLoading && !isAuthenticated ? (
         <motion.div
           initial={{ y: -24, opacity: 0 }}
@@ -692,7 +693,7 @@ export default function DashboardPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-[calc(100vh-7.25rem)] xl:max-h-[900px] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
+          className="grid min-h-[480px] w-full min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
         >
           <TodayPlanCard data={data} />
           <CyclePhaseCard data={data} />
