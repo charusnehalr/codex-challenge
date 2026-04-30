@@ -18,6 +18,7 @@ import {
   SafetyBanner,
   SkeletonCard,
 } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import { ensureAuthenticated } from "@/lib/auth-guard";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { cn } from "@/lib/utils";
@@ -1011,10 +1012,21 @@ function CycleSafetyBanners({ todayLog }: { todayLog: CycleLog | null }) {
 }
 
 export default function CyclePage() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["cycle"],
+    queryKey: ["cycle", user?.id ?? "guest"],
     queryFn: fetchCycle,
   });
+
+  async function refreshCycleData() {
+    await Promise.all([
+      refetch(),
+      queryClient.invalidateQueries({ queryKey: ["cycle"] }),
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+      queryClient.invalidateQueries({ queryKey: ["analysis"] }),
+    ]);
+  }
 
   return (
     <PageTransition>
@@ -1045,8 +1057,8 @@ export default function CyclePage() {
                   <CycleSafetyBanners todayLog={data.todayLog} />
                 </div>
                 <div className="space-y-4">
-                  <PeriodDueCard data={data} onSaved={() => void refetch()} />
-                  <TodayLogForm data={data} todayLog={data.todayLog} onSaved={() => void refetch()} />
+                  <PeriodDueCard data={data} onSaved={() => void refreshCycleData()} />
+                  <TodayLogForm data={data} todayLog={data.todayLog} onSaved={() => void refreshCycleData()} />
                 </div>
               </div>
             </motion.div>

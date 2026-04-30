@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Apple, ChevronDown, Coffee, Droplets, Info, Moon, Sun, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { AddMealModal, type MealDraft } from "@/components/features/meals/AddMealModal";
 import { Button, Card, Chip, Eyebrow, PageTransition, ProgressRing, QueryError, SafetyBanner, SkeletonCard } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import { useDashboard } from "@/hooks/useDashboard";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 import { ensureAuthenticated } from "@/lib/auth-guard";
@@ -583,9 +584,18 @@ function ActiveContextSection({ data }: { data: MealsTodayResponse }) {
 }
 
 export default function MealsPage() {
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["meals-today"], queryFn: fetchMealsToday });
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["meals-today", user?.id ?? "guest"], queryFn: fetchMealsToday });
   const [modalOpen, setModalOpen] = useState(false);
   const [draft, setDraft] = useState<MealDraft | null>(null);
+
+  async function refreshMealsAndDashboard() {
+    await Promise.all([
+      refetch(),
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+    ]);
+  }
 
   const openModal = async (nextDraft?: MealDraft) => {
     if (!(await ensureAuthenticated("signup"))) return;
@@ -600,7 +610,7 @@ export default function MealsPage() {
     return (
       <div className="grid gap-3.5 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <NutritionTodayCard summary={data.summary} targets={data.targets} />
-        <HydrationCard waterMl={data.waterMl} targetMl={data.waterTargetMl} onChanged={() => void refetch()} />
+        <HydrationCard waterMl={data.waterMl} targetMl={data.waterTargetMl} onChanged={() => void refreshMealsAndDashboard()} />
         <TodayFocusCard data={data} />
       </div>
     );
@@ -636,13 +646,13 @@ export default function MealsPage() {
           <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-5">
             <motion.div variants={fadeUp}>{topRow}</motion.div>
             <motion.div variants={fadeUp} className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-              <MealLogTimeline logs={data.logs} onAdd={addMealType} onDeleted={() => void refetch()} />
+              <MealLogTimeline logs={data.logs} onAdd={addMealType} onDeleted={() => void refreshMealsAndDashboard()} />
               <MealSuggestionPanel onUseSuggestion={(nextDraft) => void openModal(nextDraft)} />
             </motion.div>
             <motion.div variants={fadeUp}>
               <ActiveContextSection data={data} />
             </motion.div>
-            <AddMealModal open={modalOpen} onClose={() => setModalOpen(false)} onSaved={() => void refetch()} draft={draft} />
+            <AddMealModal open={modalOpen} onClose={() => setModalOpen(false)} onSaved={() => void refreshMealsAndDashboard()} draft={draft} />
           </motion.div>
         ) : null}
       </div>

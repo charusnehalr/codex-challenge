@@ -23,9 +23,9 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-9 rounded-xl px-4 text-xs",
-  md: "h-11 rounded-xl px-6 text-sm",
-  lg: "h-[52px] rounded-2xl px-8 text-base",
+  sm: "h-8 rounded-xl px-3 text-xs",
+  md: "h-10 rounded-xl px-5 text-sm",
+  lg: "h-[47px] rounded-2xl px-7 text-base",
 };
 
 function Spinner() {

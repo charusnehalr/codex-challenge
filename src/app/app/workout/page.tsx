@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Button, Card, Chip, Eyebrow, QueryError, SkeletonCard } from "@/components/ui";
+import { useAuth } from "@/hooks/useAuth";
 import { ensureAuthenticated } from "@/lib/auth-guard";
 import { cn } from "@/lib/utils";
 import { useToastStore } from "@/store/toast.store";
@@ -463,7 +464,8 @@ function WorkoutHistory({ history }: { history: WorkoutLog[] }) {
 
 export default function WorkoutPage() {
   const queryClient = useQueryClient();
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["workout-today"], queryFn: fetchWorkout });
+  const { user } = useAuth();
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["workout-today", user?.id ?? "guest"], queryFn: fetchWorkout });
   const [activePlan, setActivePlan] = useState<WorkoutPlan | null>(null);
   const [aiGenerated, setAiGenerated] = useState(false);
   const [generating, setGenerating] = useState(false);

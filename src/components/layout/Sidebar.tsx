@@ -68,7 +68,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }
         href={item.href}
         onClick={onNavigate}
         className={cn(
-          "group relative flex min-h-[44px] items-center gap-3 overflow-hidden px-5 pl-5 font-body text-sm font-medium transition-all duration-150 md:justify-center md:px-0 lg:justify-start lg:px-5 lg:pl-5",
+          "group relative flex min-h-[38px] items-center gap-2 overflow-hidden px-4 pl-4 font-body text-xs font-medium transition-all duration-150 md:justify-center md:px-0 lg:justify-start lg:px-4 lg:pl-4",
           active
             ? "bg-gradient-to-r from-claySoft/40 to-transparent text-clay"
             : "text-muted hover:bg-shell/70 hover:text-ink2",
@@ -82,7 +82,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
           />
         ) : null}
-        <Icon className={cn("size-[18px] shrink-0", active ? "stroke-clay" : "stroke-current")} aria-hidden="true" />
+        <Icon className={cn("size-4 shrink-0", active ? "stroke-clay" : "stroke-current")} aria-hidden="true" />
         <span className="md:hidden lg:inline transition-transform duration-150 group-hover:translate-x-1">{item.label}</span>
         {item.badge ? (
           <span className="ml-auto rounded-chip bg-shell px-2 py-0.5 font-mono text-[10px] text-muted md:hidden lg:inline">
@@ -97,10 +97,10 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate: () => void }
 export function Sidebar() {
   const router = useRouter();
   const { isOpen, close } = useSidebarStore();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const openModal = useAuthModalStore((state) => state.openModal);
   const { data: progressData } = useQuery({
-    queryKey: ["setupProgress"],
+    queryKey: ["setupProgress", user?.id ?? "guest"],
     queryFn: fetchSetupProgress,
   });
   const navItems = primaryItems(progressData?.setupProgress ?? 0);
@@ -124,15 +124,15 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-hairline bg-card shadow-[2px_0_16px_rgba(31,27,22,0.04)] transition-transform md:static md:w-20 md:translate-x-0 lg:w-[240px] xl:w-[260px]",
+          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-shrink-0 flex-col border-r border-hairline bg-card shadow-[2px_0_16px_rgba(31,27,22,0.04)] transition-transform md:static md:w-20 md:translate-x-0 lg:w-[240px]",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
         data-cursor-precise
       >
-        <div className="border-b border-hairline px-6 pb-6 pt-8 md:px-0 lg:px-6">
+        <div className="border-b border-hairline px-4 pb-4 pt-5 md:px-0 lg:px-4">
           <div className="flex items-center md:justify-center lg:justify-start">
           <div className="hidden lg:block">
-            <KarigaiLogo size={24} tagline />
+            <KarigaiLogo size={20} tagline />
           </div>
           <div className="lg:hidden">
             <Badge variant="default">K</Badge>
@@ -157,10 +157,10 @@ export function Sidebar() {
             <button
               type="button"
               onClick={signOut}
-              className="group flex min-h-[44px] w-full items-center gap-3 border-l-2 border-transparent px-5 font-body text-sm font-medium text-muted transition-all duration-150 hover:bg-shell/70 hover:text-ink2 md:justify-center md:px-0 lg:justify-start lg:px-5"
+              className="group flex min-h-[38px] w-full items-center gap-2 border-l-2 border-transparent px-4 font-body text-xs font-medium text-muted transition-all duration-150 hover:bg-shell/70 hover:text-ink2 md:justify-center md:px-0 lg:justify-start lg:px-4"
               title="Sign out"
             >
-              <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
+              <LogOut className="size-4 shrink-0" aria-hidden="true" />
               <span className="md:hidden lg:inline transition-transform duration-150 group-hover:translate-x-1">Sign out</span>
             </button>
           ) : (
