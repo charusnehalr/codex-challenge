@@ -97,7 +97,7 @@ function ExerciseRow({ exercise, index }: { exercise: WorkoutPlan["exercises"][n
         type="button"
         data-cursor-hover
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150 hover:bg-shell/40"
+        className="flex min-h-10 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150 hover:bg-shell/40"
       >
         <span className="flex min-w-0 items-center gap-3">
           <Icon className="size-4 shrink-0 text-sage" />
@@ -240,12 +240,12 @@ function FeedbackInline({ onSave }: { onSave: (feedback: string) => void }) {
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
-      className="mt-3 flex flex-wrap items-center gap-4 overflow-hidden rounded-xl bg-sageSoft/20 p-3"
+      className="mt-1.5 flex items-center gap-3 overflow-hidden rounded-xl bg-sageSoft/20 px-3 py-2"
     >
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((value) => (
           <motion.button key={value} type="button" data-cursor-hover whileTap={{ scale: 0.85 }} onClick={() => setRating(value)}>
-            <Star className={cn("size-4", value <= rating ? "fill-amber text-amber" : "text-muted")} />
+            <Star className={cn("size-3.5", value <= rating ? "fill-amber text-amber" : "text-muted")} />
           </motion.button>
         ))}
       </div>
@@ -253,9 +253,9 @@ function FeedbackInline({ onSave }: { onSave: (feedback: string) => void }) {
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder="Quick note..."
-        className="h-8 max-w-[220px] flex-1 border-b border-hairline bg-transparent font-body text-xs outline-none focus:border-clay"
+        className="h-7 min-w-0 flex-1 border-b border-hairline bg-transparent px-1 font-body text-xs outline-none focus:border-clay"
       />
-      <button type="button" data-cursor-hover className="ml-auto font-body text-xs text-clay hover:underline" onClick={() => onSave(`${rating}/5 ${note}`.trim())}>
+      <button type="button" data-cursor-hover className="shrink-0 whitespace-nowrap font-body text-xs text-clay hover:underline" onClick={() => onSave(`${rating}/5 ${note}`.trim())}>
         Save feedback
       </button>
     </motion.div>
@@ -285,15 +285,15 @@ function WorkoutPlanCard({
   return (
     <motion.div layout className="relative h-full overflow-hidden rounded-2xl border border-hairline bg-card shadow-[0_2px_16px_rgba(31,27,22,0.06)]">
       <div className="absolute bottom-0 left-0 top-0 w-[3px] bg-sage" />
-      <div className="flex h-full flex-col gap-3 overflow-y-auto p-4 pl-5 scrollbar-hide">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex h-full flex-col overflow-hidden pl-[3px]">
+        <div className="flex shrink-0 flex-wrap items-start justify-between gap-3 border-b border-hairline p-4">
           <div className="min-w-0">
             <Eyebrow>today's workout</Eyebrow>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <h2 className="font-display text-2xl italic leading-tight text-ink">{plan.name}</h2>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              <h2 className="font-display text-xl italic leading-tight text-ink">{plan.name}</h2>
               {aiGenerated ? <Chip tone="clay" className="h-6 px-2 font-mono text-[9px]">AI Custom</Chip> : null}
             </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
               <Chip tone="neutral" className="h-6 px-2 text-[9px]">Duration: {plan.duration}min</Chip>
               <Chip tone={plan.intensity === "low" ? "sage" : plan.intensity === "high" ? "alert" : "clay"} className="h-6 px-2 text-[9px]">
                 Intensity: {titleCase(plan.intensity)}
@@ -301,9 +301,9 @@ function WorkoutPlanCard({
               <Chip tone="bone" className="h-6 px-2 text-[9px]">Type: {titleCase(plan.type)}</Chip>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {completed ? (
-              <Chip tone="sage" className="h-9 justify-center px-4">Completed today</Chip>
+              <Chip tone="sage" className="h-8 justify-center px-4 text-xs">Completed today</Chip>
             ) : (
               <Button variant="accent" size="sm" onClick={() => onComplete(undefined, undefined, true)}>
                 <Check className="size-4" /> Mark complete
@@ -315,33 +315,35 @@ function WorkoutPlanCard({
           </div>
         </div>
 
-        {completed ? <FeedbackInline onSave={(feedback) => onComplete(feedback, undefined, true)} /> : null}
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4 scrollbar-hide">
+          {completed ? <FeedbackInline onSave={(feedback) => onComplete(feedback, undefined, true)} /> : null}
 
         <div className="flex items-start gap-2 rounded-xl border border-hairline bg-shell/50 p-2.5">
           <Sparkles className="mt-0.5 size-4 shrink-0 text-clay" />
           <p className="line-clamp-2 font-body text-xs leading-5 text-ink2">{plan.whyThisWorkout}</p>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {plan.exercises.map((exercise, index) => (
             <ExerciseRow key={`${exercise.name}-${index}`} exercise={exercise} index={index} />
           ))}
         </div>
 
-        <div className="border-t border-hairline pt-4">
-          <div className="grid gap-3 md:grid-cols-2">
+        <div className="border-t border-hairline pt-2">
+          <div className="grid gap-2 md:grid-cols-2">
           <CollapsibleText title="Warmup" body={plan.warmup} open={warmupOpen} onToggle={() => setWarmupOpen((value) => !value)} />
           <CollapsibleText title="Cooldown" body={plan.cooldown} open={cooldownOpen} onToggle={() => setCooldownOpen((value) => !value)} />
           </div>
         </div>
 
         {plan.modifications?.length ? (
-          <div className="mt-4 rounded-xl bg-bone/40 p-3 font-body text-xs leading-5 text-muted">
+          <div className="rounded-xl bg-bone/40 p-2.5 font-body text-[11px] leading-5 text-muted">
             {plan.modifications.join(" ")}
           </div>
         ) : null}
+        </div>
 
-        <div className="border-t border-hairline pt-3">
+        <div className="shrink-0 border-t border-hairline p-3">
           <div className="flex items-center justify-between gap-3">
             <button type="button" data-cursor-hover onClick={() => setSkipOpen((value) => !value)} className="shrink-0 font-body text-xs text-muted underline hover:text-ink">
               Skip today
@@ -375,8 +377,8 @@ function WorkoutPlanCard({
 
 function CollapsibleText({ title, body, open, onToggle }: { title: string; body: string; open: boolean; onToggle: () => void }) {
   return (
-    <div className="rounded-xl border border-hairline bg-card/70 p-3">
-      <button type="button" data-cursor-hover onClick={onToggle} className="flex w-full items-center gap-2 text-left">
+    <div className="rounded-xl border border-hairline bg-card/70 p-2.5">
+      <button type="button" data-cursor-hover onClick={onToggle} className="flex min-h-8 w-full items-center gap-2 text-left">
         <span className="size-2 rounded-full bg-claySoft" />
         <span className="font-body text-sm font-medium text-ink">{title}</span>
         <ChevronDown className={cn("ml-auto size-4 text-muted transition-transform", open && "rotate-180")} />
@@ -400,14 +402,14 @@ function ContextPanel({ context, backupWorkout, onSwitch }: { context?: WorkoutC
   ];
 
   return (
-    <Card className="space-y-3">
+    <Card className="space-y-2.5 p-4">
       <Eyebrow>why karigai chose this</Eyebrow>
       <div>
         {rows.map((row) => {
           const Icon = row.icon;
           return (
-            <div key={row.label} className="flex items-start gap-2 border-b border-hairline py-2 last:border-b-0">
-              <Icon className="mt-0.5 size-4 shrink-0 text-clay" />
+            <div key={row.label} className="flex min-h-9 items-start gap-2 border-b border-hairline py-2 last:border-b-0">
+              <Icon className="mt-0.5 size-3.5 shrink-0 text-clay" />
               <div className="min-w-0">
                 <p className="font-body text-xs font-medium text-ink">{row.label}</p>
                 <p className="font-body text-[10px] text-muted">{row.value}</p>
@@ -436,7 +438,7 @@ function completionStreak(history: WorkoutLog[]) {
 
 function WorkoutHistory({ history }: { history: WorkoutLog[] }) {
   return (
-    <Card className="space-y-3">
+    <Card className="space-y-2.5 p-4">
       <div className="flex items-center justify-between gap-4">
         <Eyebrow>last 7 days</Eyebrow>
         <span className="font-mono text-xs text-clay">{completionStreak(history)} days in a row</span>
@@ -444,12 +446,12 @@ function WorkoutHistory({ history }: { history: WorkoutLog[] }) {
       <div>
         {history.length ? (
           history.map((log) => (
-            <div key={log.id} className="flex items-center justify-between gap-3 border-b border-hairline py-2.5 last:border-b-0">
+            <div key={log.id} className="flex min-h-[42px] items-center justify-between gap-3 border-b border-hairline py-2 last:border-b-0">
               <div className="min-w-0">
-                <p className="truncate font-body text-sm text-ink">{log.workout_name ?? "Workout"}</p>
-                <p className="font-mono text-xs text-muted">{formatFriendlyDate(log.date)}</p>
+                <p className="truncate font-body text-xs font-medium text-ink">{log.workout_name ?? "Workout"}</p>
+                <p className="font-mono text-[10px] text-muted">{formatFriendlyDate(log.date)}</p>
               </div>
-              <Chip tone={log.completed ? "sage" : log.skipped_reason ? "neutral" : "bone"} className="h-6 shrink-0 text-[10px]">
+              <Chip tone={log.completed ? "sage" : log.skipped_reason ? "neutral" : "bone"} className="h-5 shrink-0 text-[9px]">
                 {log.completed ? "Done" : log.skipped_reason ? "Skipped" : "Planned"}
               </Chip>
             </div>
@@ -510,12 +512,12 @@ export default function WorkoutPage() {
   }
 
   return (
-    <div className="-my-8 flex h-[calc(100vh-3rem)] flex-col overflow-hidden py-3 md:-my-10 md:py-4">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="shrink-0">
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted">movement</p>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl leading-tight text-ink">Workout Planner</h1>
+            <h1 className="font-display text-xl leading-tight text-ink">Workout Planner</h1>
             <p className="mt-1 font-body text-xs text-muted">Cycle-aware movement based on your energy and context.</p>
           </div>
         </div>
@@ -523,7 +525,7 @@ export default function WorkoutPage() {
       {isLoading ? <SkeletonCard /> : null}
       {error ? <QueryError error={error} retry={() => void refetch()} /> : null}
       {data && plan ? (
-        <div className="mt-2 grid min-h-0 min-w-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,300px)]">
+        <div className="mt-3 grid min-h-0 min-w-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,280px)]">
           <WorkoutPlanCard
             plan={plan}
             completed={data.completed}
