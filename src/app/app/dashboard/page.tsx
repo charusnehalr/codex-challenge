@@ -83,7 +83,7 @@ function DashboardCard({ children, className }: { children: ReactNode; className
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className={cn("h-full overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
+      className={cn("h-full min-w-0 overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
     >
       {children}
     </motion.div>
@@ -132,7 +132,7 @@ function PlanRow({
   side?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[20px_1fr_auto_40px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
+    <div className="grid min-w-0 grid-cols-[20px_minmax(0,1fr)_auto_40px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
       <span className="grid place-items-center">{icon}</span>
       <div className="min-w-0">
         <p className="font-mono text-[9px] uppercase tracking-widest text-muted">{label}</p>
@@ -152,7 +152,7 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
+      className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
     >
       <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between">
@@ -647,7 +647,7 @@ function ChecklistCard({ data }: { data: DashboardResponse }) {
 
 function LoadingDashboard() {
   return (
-    <div className="grid min-h-[480px] gap-2.5 md:h-auto md:grid-cols-2 lg:h-[calc(100vh-7.25rem)] lg:max-h-[900px] lg:grid-cols-[2fr_1.1fr_1.1fr] lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-[calc(100vh-7.25rem)] xl:max-h-[900px] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
       {Array.from({ length: 8 }, (_, index) => <SkeletonCard key={index} />)}
     </div>
   );
@@ -660,7 +660,7 @@ export default function DashboardPage() {
   const greet = useMemo(() => greeting(), []);
 
   return (
-    <div className="-mb-8 -mt-6 h-[calc(100vh-2rem)] max-h-[900px] space-y-3 overflow-hidden bg-paper md:-mx-4 md:-mb-10 md:-mt-7">
+    <div className="-mb-8 -mt-6 min-w-0 space-y-3 overflow-x-hidden bg-paper xl:h-[calc(100vh-2rem)] xl:max-h-[900px] xl:overflow-hidden md:-mx-4 md:-mb-10 md:-mt-7">
       {!authLoading && !isAuthenticated ? (
         <motion.div
           initial={{ y: -24, opacity: 0 }}
@@ -692,7 +692,7 @@ export default function DashboardPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid min-h-[480px] gap-2.5 md:h-auto md:grid-cols-2 lg:h-[calc(100vh-7.25rem)] lg:max-h-[900px] lg:grid-cols-[2fr_1.1fr_1.1fr] lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
+          className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-[calc(100vh-7.25rem)] xl:max-h-[900px] xl:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
         >
           <TodayPlanCard data={data} />
           <CyclePhaseCard data={data} />
@@ -700,7 +700,7 @@ export default function DashboardPage() {
           <NutritionCard data={data} />
           <HydrationCard data={data} onChanged={() => void refetch()} />
           <WorkoutCard data={data} />
-          <div className="h-full lg:col-span-2"><EnergyCheckInCard /></div>
+          <div className="h-full min-w-0 xl:col-span-2"><EnergyCheckInCard /></div>
           <ChecklistCard data={data} />
         </motion.div>
       ) : null}

@@ -521,7 +521,7 @@ export default function WorkoutPage() {
       {isLoading ? <SkeletonCard /> : null}
       {error ? <QueryError error={error} retry={() => void refetch()} /> : null}
       {data && plan ? (
-        <div className="mt-2 grid min-h-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="mt-2 grid min-h-0 min-w-0 flex-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,300px)]">
           <WorkoutPlanCard
             plan={plan}
             completed={data.completed}

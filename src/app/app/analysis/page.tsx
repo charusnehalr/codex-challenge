@@ -180,7 +180,7 @@ function HeroSummary({ data }: { data: AnalysisResponse }) {
 
   return (
     <Card padding="lg" className="overflow-hidden bg-shell/50" interactive>
-      <div className="grid gap-8 lg:grid-cols-[1fr_180px] lg:items-center">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_180px] lg:items-center">
         <div>
           <div className="inline-flex items-center gap-2 rounded-chip bg-card px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
             <Sparkles className="size-3 text-clay" />
@@ -240,7 +240,7 @@ function SpectrumRow({
 
   return (
     <div className="rounded-2xl bg-paper/70 p-4">
-      <div className="grid gap-4 lg:grid-cols-[180px_1fr_180px] lg:items-center">
+      <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)_180px] lg:items-center">
         <div>
           <div className="flex items-center gap-2">
             <span className="font-body text-base font-semibold text-ink">{label}</span>
@@ -424,7 +424,7 @@ function EnergyTargets({ data }: { data: AnalysisResponse }) {
     <section>
       <SectionTitle eyebrow="energy and nutrition" title="Daily targets with context" />
       <Card padding="lg" interactive>
-        <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
           <div>
             <Eyebrow>daily energy</Eyebrow>
             <h3 className="mt-2 font-display text-4xl text-ink">{formatNumber(data.calorieTarget, " kcal")} target</h3>
@@ -555,7 +555,7 @@ function CycleWheel({ data }: { data: AnalysisResponse }) {
     <section>
       <SectionTitle eyebrow="cycle rhythm" title="Where today sits in your cycle" />
       <Card padding="lg" interactive>
-        <div className="grid gap-8 lg:grid-cols-[300px_1fr] lg:items-center">
+        <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-center">
           <div className="relative mx-auto size-[280px]">
             <svg viewBox="0 0 180 180" className="size-full">
               {phaseMeta.map((phase) => {

@@ -169,15 +169,15 @@ function SetupNav({
   const completeCount = completedSections.size;
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-5 shadow-[0_2px_16px_rgba(31,27,22,0.06)]" padding="sm" interactive={false}>
+    <Card className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_2px_16px_rgba(31,27,22,0.06)]" padding="sm" interactive={false}>
       <div className="flex shrink-0 flex-col items-center">
-        <ProgressRing value={progress / 100} size={100} stroke={7} label={`${progress}%`} sublabel="done" />
+        <ProgressRing value={progress / 100} size={92} stroke={7} label={`${progress}%`} sublabel="done" />
         <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">
           {completeCount} of {sections.length} sections complete
         </p>
       </div>
 
-      <nav className="mt-4 flex-1 overflow-hidden">
+      <nav className="mt-3 flex-1 overflow-hidden">
         {sections.map((section, index) => {
           const complete = completedSections.has(section.key);
           const active = section.index === activeSection;
@@ -192,7 +192,7 @@ function SetupNav({
                 data-cursor-hover
                 onClick={() => onSelect(section.index)}
                 className={cn(
-                  "flex min-h-[44px] w-full items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors duration-150 hover:bg-shell/70",
+                  "flex min-h-[40px] w-full items-center gap-3 rounded-xl px-2 py-1 text-left transition-colors duration-150 hover:bg-shell/70",
                   active && "border-l-2 border-clay bg-clay/5",
                 )}
               >
@@ -208,14 +208,14 @@ function SetupNav({
                   >
                     {section.label}
                   </span>
-                  {preview && complete ? <span className="mt-0.5 block truncate font-mono text-[10px] text-muted">{preview}</span> : null}
+                  {preview && complete ? <span className="mt-0.5 block truncate font-mono text-[9px] text-muted">{preview}</span> : null}
                 </span>
                 {status === "complete" ? (
-                  <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-widest text-sage">✓ done</span>
+                  <span className="ml-auto shrink-0 font-mono text-[8px] uppercase tracking-widest text-sage">Done</span>
                 ) : null}
               </button>
               {index < sections.length - 1 ? (
-                <div className="ml-[17px] h-3 w-[2px] overflow-hidden bg-hairline">
+                <div className="ml-[17px] h-2 w-[2px] overflow-hidden bg-hairline">
                   {complete ? (
                     <motion.div
                       className="h-full w-full bg-clay"
@@ -290,12 +290,12 @@ function SetupPageContent() {
 
   return (
     <div className="flex h-[calc(100vh-5rem)] flex-col overflow-hidden">
-      <div className="mb-4 flex shrink-0 items-baseline justify-between gap-4">
+      <div className="mb-3 flex shrink-0 items-baseline justify-between gap-4">
         <div>
           <p className="font-mono text-[9px] uppercase tracking-widest text-muted">onboarding</p>
           <h1 className="mt-0.5 font-display text-3xl leading-tight text-ink">Onboarding</h1>
         </div>
-        <p className="whitespace-nowrap font-body text-xs text-muted">Save what you know · skip anything · edit anytime</p>
+        <p className="whitespace-nowrap font-body text-xs text-muted">Save what you know - skip anything - edit anytime</p>
       </div>
       {!authLoading && !isAuthenticated ? (
         <Card className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
@@ -312,7 +312,7 @@ function SetupPageContent() {
         </Card>
       ) : null}
       {isAuthenticated ? (
-      <div className="grid min-h-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="grid min-h-0 min-w-0 flex-1 gap-4 overflow-hidden lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
         <div className="min-h-0 overflow-hidden">
           <SetupNav
             activeSection={activeSection}

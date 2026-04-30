@@ -318,7 +318,7 @@ function PhaseHero({ data }: { data: CycleResponse }) {
 
   return (
     <Card padding="md" interactive className={cn("rounded-2xl", meta?.bannerClassName ?? "bg-shell/40")}>
-      <div className="grid gap-4 lg:grid-cols-[1fr_auto_1.1fr] lg:items-center">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1.1fr)] lg:items-center">
         <div>
           <Eyebrow>your cycle · today</Eyebrow>
           <h2 className="mt-2 font-display text-4xl italic leading-tight text-clay">{phase}</h2>
@@ -1027,7 +1027,7 @@ export default function CyclePage() {
         {isLoading ? (
           <div className="space-y-4">
             <SkeletonCard />
-            <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
               <SkeletonCard />
               <SkeletonCard />
             </div>
@@ -1039,7 +1039,7 @@ export default function CyclePage() {
           <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-6">
             <motion.div variants={fadeUp}><PhaseHero data={data} /></motion.div>
             <motion.div variants={fadeUp}>
-              <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                 <div className="space-y-4">
                   <MiniCycleWheel data={data} />
                   <CycleSafetyBanners todayLog={data.todayLog} />

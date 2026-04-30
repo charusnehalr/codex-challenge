@@ -16,8 +16,8 @@ export default function ProtectedAppLayout({
           <Sidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <MobileHeader />
-            <main className="flex-1 overflow-y-auto">
-              <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-8 md:py-10">
+            <main className="min-w-0 flex-1 overflow-y-auto">
+              <div className="mx-auto w-full max-w-[1320px] min-w-0 px-4 py-8 xl:px-6">
                 <PageTransition>{children}</PageTransition>
               </div>
             </main>

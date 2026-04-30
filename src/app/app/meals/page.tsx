@@ -161,7 +161,7 @@ function NutritionTodayCard({ summary, targets }: { summary: NutritionSummary; t
   return (
     <Card padding="sm" className="h-[180px] p-4" interactive>
       <Eyebrow>nutrition today</Eyebrow>
-      <div className="mt-3 grid grid-cols-[1.1fr_0.9fr] gap-5">
+      <div className="mt-3 grid grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-5">
         <div className="min-w-0">
           <p className="font-display text-4xl leading-none text-clay">{formatNumber(summary.calories)}</p>
           <p className="mt-1 whitespace-nowrap font-mono text-xs text-muted">of {formatNumber(targets.calories)} kcal</p>
@@ -598,7 +598,7 @@ export default function MealsPage() {
   const topRow = useMemo(() => {
     if (!data) return null;
     return (
-      <div className="grid gap-3.5 lg:grid-cols-[1.8fr_1fr_1fr]">
+      <div className="grid gap-3.5 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <NutritionTodayCard summary={data.summary} targets={data.targets} />
         <HydrationCard waterMl={data.waterMl} targetMl={data.waterTargetMl} onChanged={() => void refetch()} />
         <TodayFocusCard data={data} />
@@ -618,12 +618,12 @@ export default function MealsPage() {
 
         {isLoading ? (
           <div className="space-y-4">
-            <div className="grid gap-3.5 lg:grid-cols-[1.8fr_1fr_1fr]">
+            <div className="grid gap-3.5 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)_minmax(0,1fr)]">
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
             </div>
-            <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
               <SkeletonCard />
               <SkeletonCard />
             </div>
@@ -635,7 +635,7 @@ export default function MealsPage() {
         {data ? (
           <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-5">
             <motion.div variants={fadeUp}>{topRow}</motion.div>
-            <motion.div variants={fadeUp} className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
+            <motion.div variants={fadeUp} className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
               <MealLogTimeline logs={data.logs} onAdd={addMealType} onDeleted={() => void refetch()} />
               <MealSuggestionPanel onUseSuggestion={(nextDraft) => void openModal(nextDraft)} />
             </motion.div>
