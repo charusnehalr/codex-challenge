@@ -223,17 +223,3 @@ Karigai is early. If you're a developer, designer, clinician, or a woman who has
 Open an issue. Start a discussion. Build something that matters.
 
 ---
-
-## License
-
-MIT — see [LICENSE](LICENSE)
-
----
-
-<div align="center">
-
-**Built for the women who were told their labs are "normal" when nothing felt normal.**
-
-*Karigai — your body is not average, your wellness intelligence shouldn't be either.*
-
-</div>
