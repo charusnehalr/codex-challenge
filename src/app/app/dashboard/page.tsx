@@ -75,7 +75,8 @@ function formatInt(value: number) {
 }
 
 function waterDisplay(waterMl: number) {
-  return waterMl >= 1000 ? `${(waterMl / 1000).toFixed(1)}L` : formatInt(waterMl);
+  if (waterMl === 0) return "0";
+  return waterMl >= 1000 ? `${(waterMl / 1000).toFixed(1)}L` : `${formatInt(waterMl)}ml`;
 }
 
 function DashboardCard({ children, className }: { children: ReactNode; className?: string }) {
@@ -428,35 +429,57 @@ function HydrationCard({ data, onChanged }: { data: DashboardResponse; onChanged
   return (
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">hydration</p>
-      <div className="mt-2 flex flex-1 flex-col justify-between gap-3 overflow-hidden">
+      <div className="flex flex-1 flex-col justify-center gap-0.5 overflow-hidden">
         <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="font-display text-3xl leading-none text-ink">{waterDisplay(optimisticWater)}</p>
-            <p className="mt-0.5 whitespace-nowrap font-mono text-[11px] text-muted">of {formatInt(target)}ml</p>
-          </div>
-          <motion.div
+          <span className="font-display text-4xl leading-none text-ink">{waterDisplay(optimisticWater)}</span>
+          <motion.span
             animate={{ scale: waterPulse ? [1, 1.08, 1] : 1 }}
             transition={{ duration: 0.3 }}
-            className="shrink-0"
+            className="rounded-full bg-shell px-2 py-0.5 font-mono text-[10px] text-muted"
           >
-            <ProgressRing value={percent(optimisticWater, target)} size={64} stroke={6} color="#6B8AA8" track="#EFE7DA" />
-          </motion.div>
+            {Math.round(percent(optimisticWater, target) * 100)}%
+          </motion.span>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {[250, 500].map((amount) => (
+        <p className="mt-0.5 whitespace-nowrap font-mono text-xs text-muted">of {formatInt(target)}ml</p>
+        <div className="mb-3 mt-2">
+          <div className="h-1.5 overflow-hidden rounded-full bg-shell">
+            <motion.div
+              className="h-full rounded-full bg-[#6B8AA8]"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(100, percent(optimisticWater, target) * 100)}%` }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            />
+          </div>
+          <div className="mt-0.5 flex justify-between">
+            <span className="font-mono text-[9px] text-muted">0ml</span>
+            <span className="font-mono text-[9px] text-muted">{formatInt(target)}ml goal</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex shrink-0 gap-1.5">
+        {[
+          { label: "-500", delta: -500, positive: false },
+          { label: "-250", delta: -250, positive: false },
+          { label: "+250", delta: 250, positive: true },
+          { label: "+500", delta: 500, positive: true },
+        ].map(({ label, delta, positive }) => (
             <motion.button
-              key={amount}
+              key={label}
               type="button"
               data-cursor-hover
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              onClick={() => void addWater(amount)}
-              className="h-8 rounded-xl border border-[#6B8AA8]/20 bg-[#EFF3F8] font-body text-xs text-[#6B8AA8] transition-colors hover:bg-[#6B8AA8]/20"
+              onClick={() => void addWater(delta)}
+              className={cn(
+                "h-8 min-w-0 flex-1 rounded-xl border font-body text-xs transition-colors",
+                positive
+                  ? "border-[#6B8AA8]/20 bg-[#6B8AA8]/10 text-[#6B8AA8] hover:bg-[#6B8AA8]/20"
+                  : "border-hairline bg-shell text-muted hover:bg-bone",
+              )}
             >
-              +{amount}ml
+              {label}
             </motion.button>
-          ))}
-        </div>
+        ))}
       </div>
     </DashboardCard>
   );
@@ -542,12 +565,14 @@ function EnergyCheckInCard() {
   }
 
   return (
-    <DashboardCard className="flex flex-col gap-2">
-      <div className="min-w-0">
-        <p className="font-body text-xs font-medium text-ink">
+    <DashboardCard className="flex flex-col">
+      <div className="flex shrink-0 items-center justify-between">
+        <p className="font-body text-sm font-medium text-ink">
           How are you feeling? <span className="font-normal text-muted">· Tap a number + symptoms</span>
         </p>
-        <div className="mt-2 flex min-w-0 gap-1">
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col justify-evenly py-1">
+        <div className="flex min-w-0 items-center gap-1.5">
           {Array.from({ length: 10 }, (_, index) => index + 1).map((score) => (
             <motion.button
               key={score}
@@ -555,18 +580,16 @@ function EnergyCheckInCard() {
               data-cursor-hover
               whileHover={{ scale: 1.08, y: -1 }}
               whileTap={{ scale: 0.92 }}
-              animate={{ scale: energy === score ? 1.16 : 1, y: energy === score ? -2 : 0 }}
+              animate={{ scale: energy === score ? 1.15 : 1, y: energy === score ? -2 : 0 }}
               transition={{ type: "spring", stiffness: 430, damping: 24 }}
               onClick={() => setEnergy(score)}
-              className={cn("grid size-8 shrink-0 place-items-center rounded-full font-mono text-[11px] shadow-sm", energy === score ? "bg-clay text-cream shadow-[0_8px_18px_rgba(184,112,79,0.28)]" : "bg-shell text-muted hover:bg-bone hover:text-ink")}
+              className={cn("grid size-[30px] shrink-0 place-items-center rounded-full font-mono text-[11px] shadow-sm", energy === score ? "bg-clay text-cream shadow-md" : "bg-shell text-muted hover:bg-bone hover:text-ink")}
             >
               {score}
             </motion.button>
           ))}
         </div>
-      </div>
-      <div className="flex items-end justify-between gap-2">
-        <div className="flex flex-nowrap justify-end gap-1.5 overflow-hidden">
+        <div className="flex flex-wrap items-center gap-2 overflow-hidden">
           {visibleSymptoms.map((symptom) => {
             const selected = selectedSymptoms.includes(symptom);
             return (
@@ -578,7 +601,7 @@ function EnergyCheckInCard() {
                 animate={{ scale: selected ? 1.04 : 1 }}
                 transition={{ type: "spring", stiffness: 420, damping: 24 }}
                 onClick={() => setSelectedSymptoms((current) => selected ? current.filter((item) => item !== symptom) : [...current, symptom])}
-              className={cn("h-[26px] whitespace-nowrap rounded-chip border px-2.5 py-0.5 font-body text-[11px] transition-colors", selected ? "border-clay bg-clay text-cream" : "border-hairline bg-shell text-muted")}
+              className={cn("h-[28px] shrink-0 whitespace-nowrap rounded-chip border px-3 font-body text-xs transition-colors", selected ? "border-clay bg-clay text-cream" : "border-hairline bg-shell text-muted hover:bg-bone")}
               >
                 {symptom}
               </motion.button>
@@ -589,12 +612,14 @@ function EnergyCheckInCard() {
               type="button"
               data-cursor-hover
               onClick={() => setShowAllSymptoms(true)}
-              className="h-[26px] whitespace-nowrap rounded-chip border border-hairline bg-shell px-2.5 py-0.5 font-body text-[11px] text-muted transition-colors hover:text-ink"
+              className="h-[28px] shrink-0 whitespace-nowrap rounded-chip border border-hairline bg-shell px-2.5 font-body text-xs text-muted transition-colors hover:bg-bone hover:text-ink"
             >
               + {hiddenSymptoms}
             </button>
           ) : null}
         </div>
+      </div>
+      <div className="flex shrink-0 justify-end pt-1">
         <button type="button" data-cursor-hover onClick={() => void saveCheckIn()} className="h-8 w-fit shrink-0 rounded-xl bg-clay px-4 font-body text-xs text-cream">
           {saved ? "Saved ✓" : "Save check-in"}
         </button>
