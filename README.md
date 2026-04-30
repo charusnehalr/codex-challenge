@@ -28,7 +28,7 @@
 
 Women's health is not a niche. It's **half the planet.**
 
-Yet every mainstream fitness app treats a 28-year-old woman with PCOS and iron deficiency the same as a 28-year-old man training for a marathon. The result? Advice that doesn't just fail — it **actively harms.**
+Yet every mainstream fitness app treats a 28-year-old woman with PCOS and iron deficiency the same as a 28-year-old man training for a marathon. The result? Advice that doesn't just fail-it **actively harms.**
 
 > 🚫 A woman with an eating disorder history gets recommended a 500-calorie deficit.
 >
@@ -38,9 +38,9 @@ Yet every mainstream fitness app treats a 28-year-old woman with PCOS and iron d
 
 **Generic wellness is not wellness. It's noise.**
 
-Women navigate a fundamentally different biological landscape — hormonal cycles that shift metabolism week to week, conditions like PCOS affecting 1 in 10, thyroid disorders 5–8× more common in women, and silent nutritional deficiencies that cascade through energy, mood, and performance.
+Women navigate a fundamentally different biological landscape-hormonal cycles that shift metabolism week to week, conditions like PCOS affecting 1 in 10, thyroid disorders 5–8× more common in women, and silent nutritional deficiencies that cascade through energy, mood, and performance.
 
-No existing app connects all of this. They silo your period tracker from your nutrition app from your workout planner — **and none of them know you have PCOS.**
+No existing app connects all of this. They silo your period tracker from your nutrition app from your workout planner-**and none of them know you have PCOS.**
 
 <br />
 
@@ -50,7 +50,7 @@ No existing app connects all of this. They silo your period tracker from your nu
 
 Karigai is a **condition-aware wellness intelligence platform** that understands who you are *before* it tells you what to do.
 
-It weaves together your menstrual cycle, health conditions, nutritional needs, fitness capacity, and personal goals into a single living context — then uses AI to generate guidance that is genuinely safe and relevant for *you.*
+It weaves together your menstrual cycle, health conditions, nutritional needs, fitness capacity, and personal goals into a single living context-then uses AI to generate guidance that is genuinely safe and relevant for *you.*
 
 <div align="center">
 
@@ -70,7 +70,7 @@ It weaves together your menstrual cycle, health conditions, nutritional needs, f
 | Nutrition targets based on gender/age | Targets adjusted for PCOS, thyroid, pregnancy, deficiencies |
 | Workout plans ignore your cycle | Workout intensity adapts to where you are in your cycle |
 | No safety guardrails | Hard safety banners for pain ≥8, bleeding + dizziness, fasting + pregnancy |
-| AI gives supplement dosages | AI never diagnoses, prescribes, or doses — ever |
+| AI gives supplement dosages | AI never diagnoses, prescribes, or doses-ever |
 | Siloed trackers | One unified context: cycle + food + movement + mood + health |
 
 <br />
@@ -80,38 +80,38 @@ It weaves together your menstrual cycle, health conditions, nutritional needs, f
 ## 🌿 Core Features
 
 ### 🔴 Cycle Intelligence
-Real-time cycle phase estimation — **Menstrual → Follicular → Ovulation → Luteal → Late Luteal** — with confidence scoring. Your workout suggestions, energy benchmarks, and hydration targets shift with your phase.
+Real-time cycle phase estimation-**Menstrual → Follicular → Ovulation → Luteal → Late Luteal**-with confidence scoring. Your workout suggestions, energy benchmarks, and hydration targets shift with your phase.
 
 ### 🟠 Condition-Aware Personalization
 18 health conditions mapped into a rules engine that silently shapes every recommendation.
 - **PCOS?** Protein targets go up, refined carb guidance changes.
 - **Eating disorder history?** Deficit-based framing is disabled entirely.
-- **Pregnancy?** Fasting is off the table — with a visible safety banner.
+- **Pregnancy?** Fasting is off the table-with a visible safety banner.
 
 ### 🟡 AI Meal Suggestions *(LLM API)*
-Powered by an **LLM API**, meal suggestions are built from your full context: diet type, restrictions (gluten-free, halal, jain, nut-free and more), health conditions, remaining daily macros, and your active fasting window. The AI doesn't just suggest food — it explains *why* this meal works for you today.
+Powered by an **LLM API**, meal suggestions are built from your full context: diet type, restrictions (gluten-free, halal, jain, nut-free and more), health conditions, remaining daily macros, and your active fasting window. The AI doesn't just suggest food-it explains *why* this meal works for you today.
 
 ### 🟢 AI Workout Generation
 **LLM-powered** workout plans generated from your fitness level, available equipment, cycle phase, and today's energy score. Every workout includes warm-up, cooldown, exercise progressions, and injury-aware modifications.
 
 ### 🔵 AI Wellness Chat
-A context-aware wellness chatbot that knows your profile before you type a word. Ask about energy crashes, cycle symptoms, what to eat before a workout — and get responses grounded in your actual health data. Safety triggers route high-risk messages to appropriate guidance.
+A context-aware wellness chatbot that knows your profile before you type a word. Ask about energy crashes, cycle symptoms, what to eat before a workout-and get responses grounded in your actual health data. Safety triggers route high-risk messages to appropriate guidance.
 
 ### 🟣 Health Analytics Engine
-**BMI, WHR, BRI, BMR, TDEE** — calculated from your actual measurements. Calorie, protein, and water targets derived from your specific conditions and goals. A dashboard that shows you the *why* behind every number.
+**BMI, WHR, BRI, BMR, TDEE**-calculated from your actual measurements. Calorie, protein, and water targets derived from your specific conditions and goals. A dashboard that shows you the *why* behind every number.
 
 <br />
 
 ---
 
-## 🛡️ Safety First — Always
+## 🛡️ Safety First-Always
 
 Karigai operates with a **non-negotiable safety layer** baked into every AI response:
 
 - 🚨 **Hard banners** surface immediately for: pain ≥ 8/10 · heavy bleeding + dizziness · eating disorder history + fasting · pregnancy + fasting
 - 🩺 **AI never diagnoses**, prescribes, or gives supplement dosages
 - 💬 **All wellness language** uses *"may"*, *"might"*, *"based on what you've shared"*
-- 🔓 **Setup is always skippable** — the dashboard never blocks a user who isn't ready to share
+- 🔓 **Setup is always skippable**-the dashboard never blocks a user who isn't ready to share
 
 <br />
 
@@ -153,8 +153,8 @@ User Context  (profile + conditions + cycle + diet + fitness + goals)
 | 🔷 Language | TypeScript (strict mode) |
 | 🎨 Styling | Tailwind CSS with custom design tokens |
 | 🗄️ Database | Supabase (PostgreSQL + Auth + RLS) |
-| 🤖 AI — Meals | LLM API |
-| 🤖 AI — Chat & Workouts | LLM API |
+| 🤖 AI-Meals | LLM API |
+| 🤖 AI-Chat & Workouts | LLM API |
 | ⚡ State | TanStack Query + Zustand |
 | 📝 Forms | React Hook Form + Zod |
 | 📊 Charts | Recharts |
@@ -171,8 +171,8 @@ User Context  (profile + conditions + cycle + diet + fitness + goals)
 
 - Node.js 18+
 - A Supabase project
-- LLM API key (primary — for meal suggestions)
-- LLM API key (secondary — for chat & workouts)
+- LLM API key (primary-for meal suggestions)
+- LLM API key (secondary-for chat & workouts)
 
 ### Installation
 
@@ -246,7 +246,7 @@ Every step is independently saveable. None are required to use the app.
 | Stat | Number |
 |---|---|
 | 🩺 Women globally with PCOS | **190 million+** |
-| 🔬 Thyroid disorders — women vs men | **5–8× more common** |
+| 🔬 Thyroid disorders-women vs men | **5–8× more common** |
 | 🩸 Women with iron deficiency anaemia | **~30% of reproductive age** |
 | 💰 Women's health app market by 2030 | **$3.5B+** |
 | 😔 Women unserved by current health apps | **72%** |
@@ -266,7 +266,7 @@ The gap between what women need and what currently exists is not a *feature gap.
 - [ ] 🥗 Cycle-synced meal plans (week-by-week phase nutrition)
 - [ ] 👭 Community support groups (condition-specific)
 - [ ] 👩‍⚕️ Practitioner dashboard (share context with your doctor or dietitian)
-- [ ] 🌍 Multilingual support (Hindi, Tamil, Spanish — starting with South Asia)
+- [ ] 🌍 Multilingual support (Hindi, Tamil, Spanish-starting with South Asia)
 - [ ] 📱 Mobile app (React Native)
 
 <br />
@@ -275,7 +275,7 @@ The gap between what women need and what currently exists is not a *feature gap.
 
 ## 🤝 Contributing
 
-Karigai is early. If you're a developer, designer, clinician, or a woman who has been failed by generic health advice — **we want to hear from you.**
+Karigai is early. If you're a developer, designer, clinician, or a woman who has been failed by generic health advice-**we want to hear from you.**
 
 Open an issue. Start a discussion. Build something that matters.
 
@@ -285,7 +285,7 @@ Open an issue. Start a discussion. Build something that matters.
 
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE)
+MIT-see [LICENSE](LICENSE)
 
 ---
 
@@ -295,7 +295,7 @@ MIT — see [LICENSE](LICENSE)
 
 *Built for the women who were told their labs are "normal" when nothing felt normal.*
 
-### 🌸 **Karigai** — your body is not average, your wellness intelligence shouldn't be either.
+### 🌸 **Karigai**-your body is not average, your wellness intelligence shouldn't be either.
 
 <br />
 
