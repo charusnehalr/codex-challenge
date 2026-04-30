@@ -83,7 +83,7 @@ function DashboardCard({ children, className }: { children: ReactNode; className
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className={cn("dashboard-card h-full min-w-0 overflow-hidden rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
+      className={cn("dashboard-card h-full min-w-0 overflow-hidden rounded-2xl border border-hairline bg-card p-3 shadow-[0_1px_4px_rgba(31,27,22,0.05)]", className)}
     >
       {children}
     </motion.div>
@@ -91,13 +91,13 @@ function DashboardCard({ children, className }: { children: ReactNode; className
 }
 
 function TinyRing({ value, color = "#B8704F" }: { value: number; color?: string }) {
-  const size = 34;
-  const stroke = 4.5;
+  const size = 30;
+  const stroke = 4;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <span className="grid size-10 place-items-center rounded-full bg-shell/40">
+    <span className="grid size-9 place-items-center rounded-full bg-shell/40">
       <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#EFE7DA" strokeWidth={stroke} />
         <motion.circle
@@ -132,7 +132,7 @@ function PlanRow({
   side?: ReactNode;
 }) {
   return (
-    <div className="grid min-w-0 grid-cols-[20px_minmax(0,1fr)_auto_40px] items-center gap-3 border-b border-hairline py-3 last:border-b-0 first:pt-2">
+    <div className="grid min-w-0 grid-cols-[18px_minmax(0,1fr)_auto_36px] items-center gap-2 border-b border-hairline py-2.5 last:border-b-0 first:pt-2">
       <span className="grid place-items-center">{icon}</span>
       <div className="min-w-0">
         <p className="font-mono text-[9px] uppercase tracking-widest text-muted">{label}</p>
@@ -152,7 +152,7 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
     <motion.div
       variants={fadeUp}
       whileHover={{ scale: 1.01, boxShadow: "0 8px 28px rgba(31,27,22,0.09)" }}
-      className="dashboard-card relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-4 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
+      className="dashboard-card relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card p-3 text-ink shadow-[0_1px_4px_rgba(31,27,22,0.05)]"
     >
       <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ function TodayPlanCard({ data }: { data: DashboardResponse }) {
           }
         />
       </div>
-      <div className="-mx-4 -mb-4 mt-auto flex items-center justify-between gap-3 rounded-b-2xl bg-shell/40 px-4 py-2">
+      <div className="-mx-3 -mb-3 mt-auto flex items-center justify-between gap-2 rounded-b-2xl bg-shell/40 px-3 py-2">
         <p className="truncate font-body text-[10px] italic text-muted">{cleanInsight(data.insight)}</p>
         <Link href="/app/chat" className="shrink-0 font-body text-[10px] text-clay transition-colors hover:text-ink">
           Ask assistant →
@@ -230,7 +230,7 @@ function CyclePhaseCard({ data }: { data: DashboardResponse }) {
         <motion.svg
           viewBox="0 0 120 120"
           preserveAspectRatio="xMidYMid meet"
-          className="h-auto w-full max-w-[145px]"
+          className="h-auto w-full max-w-[132px]"
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -353,7 +353,7 @@ function MacroRingColumn({
       transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1], delay }}
     >
       <div className="relative grid place-items-center">
-        <ProgressRing value={percent(consumed, target)} size={56} stroke={5} color={color} track="#EFE7DA" sublabel="g" />
+        <ProgressRing value={percent(consumed, target)} size={50} stroke={4.5} color={color} track="#EFE7DA" sublabel="g" />
         <div className="absolute inset-0 grid place-items-center pb-2 font-body text-sm font-semibold text-ink">
           <AnimatedRingLabel value={Math.round(consumed)} delay={delay} />
         </div>
@@ -500,7 +500,7 @@ function WorkoutCard({ data }: { data: DashboardResponse }) {
   }
 
   return (
-    <DashboardCard className="flex flex-col p-4">
+    <DashboardCard className="flex flex-col">
       <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">workout today</p>
       <h3 className="mt-1 line-clamp-1 font-body text-sm font-semibold leading-tight text-ink">{data.todayPlan.workoutName ?? "Gentle cycle support"}</h3>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -648,7 +648,7 @@ function ChecklistCard({ data }: { data: DashboardResponse }) {
 
 function LoadingDashboard() {
   return (
-    <div className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid min-h-[480px] min-w-0 grid-cols-1 gap-2 md:grid-cols-2 xl:h-full xl:min-h-0 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
       {Array.from({ length: 8 }, (_, index) => <SkeletonCard key={index} />)}
     </div>
   );
@@ -676,14 +676,14 @@ export default function DashboardPage() {
         </motion.div>
       ) : null}
 
-      <motion.header variants={fadeUp} initial="hidden" animate="visible" className="mb-3 flex shrink-0 items-start justify-between gap-3">
+      <motion.header variants={fadeUp} initial="hidden" animate="visible" className="mb-2 flex shrink-0 items-start justify-between gap-3">
         <div>
-          <p className="font-display text-3xl font-normal text-ink">
+          <p className="font-display text-2xl font-normal text-ink">
             {greet}{data?.profileName ? `, ${data.profileName}` : ""} <span className="pulse-star inline-block">✦</span>
           </p>
           <p className="font-body text-xs text-muted">Your daily overview, shaped by what Karigai knows.</p>
         </div>
-        <p className="font-mono text-xs uppercase tracking-widest text-muted">{dateLabel()}</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{dateLabel()}</p>
       </motion.header>
 
       {isLoading ? <LoadingDashboard /> : null}
@@ -693,7 +693,7 @@ export default function DashboardPage() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid min-h-[480px] w-full min-w-0 grid-cols-1 gap-2.5 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
+          className="grid min-h-[480px] w-full min-w-0 grid-cols-1 gap-2 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
         >
           <TodayPlanCard data={data} />
           <CyclePhaseCard data={data} />

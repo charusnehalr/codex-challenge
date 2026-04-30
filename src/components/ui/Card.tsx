@@ -14,9 +14,9 @@ type CardProps = HTMLMotionProps<"div"> & {
 };
 
 const paddings: Record<CardPadding, string> = {
-  sm: "p-5",
-  md: "p-6",
-  lg: "p-8",
+  sm: "p-4",
+  md: "p-5",
+  lg: "p-6",
 };
 
 export function Card({ children, className, padding = "md", dark = false, interactive = true, ...props }: CardProps) {
