@@ -87,6 +87,7 @@ export function BodyMetricsForm({ sectionIndex, onSaved, initialData, profileMod
         tone="info"
         title="Wellness estimates only"
         body="Waist and hip measurements help estimate body shape context. These are wellness estimates, not diagnosis."
+        className="mb-1"
       />
       <div className="grid gap-x-6 gap-y-6 md:grid-cols-2">
         <Input label="Waist (cm)" type="number" error={errors.waist_cm?.message} {...register("waist_cm")} />

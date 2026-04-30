@@ -109,11 +109,13 @@ export function HealthContextForm({ sectionIndex, onSaved, initialData, profileM
         tone="info"
         title="Personalisation context only"
         body="These fields help Karigai personalise safely. This is context only, not diagnosis."
+        className="mb-1"
       />
       <CheckboxGrid
         values={conditions}
         options={booleanFields}
         onChange={(key, checked) => setValue(`conditions.${key}`, checked)}
+        columns="two"
       />
       <div className="grid gap-6 md:grid-cols-2">
         <Input label="Injuries" {...register("injuries")} />

@@ -140,7 +140,7 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
         />
         <FieldError message={errors.primary_goal?.message} />
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="mb-5 grid gap-6 md:grid-cols-2">
         <Input
           label="Target weight (kg)"
           type="number"
@@ -160,7 +160,7 @@ export function GoalsForm({ sectionIndex, onSaved, initialData, profileMode, onN
           {...register("timeline_weeks")}
         />
       </div>
-      <div className="rounded-xl bg-sageSoft/40 p-4">
+      <div className="mt-2 rounded-xl bg-sageSoft/40 p-4">
         <p className="font-display text-lg italic text-sage">✦ You&apos;re all set</p>
         <p className="mt-1 font-body text-xs text-muted">Karigai now has the context to personalise your plan.</p>
         <a href="/app/dashboard" data-cursor-hover className="mt-3 inline-block font-body text-xs text-clay underline">

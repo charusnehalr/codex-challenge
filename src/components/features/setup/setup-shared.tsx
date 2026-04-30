@@ -152,7 +152,7 @@ export function SetupFormShell({
         <h2 className={cn("font-display italic text-ink", profileMode ? "text-3xl" : "text-2xl")}>{title}</h2>
         <p className={cn("mt-1 max-w-2xl font-body text-muted", profileMode ? "text-sm leading-6" : "text-sm leading-5")}>{description}</p>
       </div>
-      <div className={cn("min-h-0", profileMode ? undefined : "flex flex-1 flex-col gap-4 overflow-hidden py-4")}>
+      <div className={cn("min-h-0", profileMode ? undefined : "flex flex-1 flex-col gap-4 overflow-hidden py-3")}>
         {children}
       </div>
       <div className={cn("flex shrink-0 flex-wrap gap-3 border-t border-hairline", profileMode ? "pt-5" : "pt-4")}>
@@ -210,13 +210,15 @@ export function CheckboxGrid({
   values,
   options,
   onChange,
+  columns = "responsive",
 }: {
   values: Record<string, boolean>;
   options: Option[];
   onChange: (key: string, checked: boolean) => void;
+  columns?: "responsive" | "two";
 }) {
   return (
-    <div className="grid gap-x-6 gap-y-2.5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className={cn("grid gap-y-3", columns === "two" ? "gap-x-8 sm:grid-cols-2" : "gap-x-6 sm:grid-cols-2 xl:grid-cols-3")}>
       {options.map((option) => (
         <Checkbox
           key={option.value}

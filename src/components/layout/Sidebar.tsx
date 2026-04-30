@@ -124,7 +124,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-hairline bg-card shadow-[2px_0_16px_rgba(31,27,22,0.04)] transition-transform md:static md:w-20 md:translate-x-0 lg:w-[260px]",
+          "fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-hairline bg-card shadow-[2px_0_16px_rgba(31,27,22,0.04)] transition-transform md:static md:w-20 md:translate-x-0 lg:w-[240px] xl:w-[260px]",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
         data-cursor-precise

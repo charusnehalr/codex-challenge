@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { Button, Input, KarigaiLogo, Modal } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { useAuthModalStore } from "@/store/auth-modal.store";
@@ -11,6 +12,7 @@ export function AuthModal() {
   const { open, mode, closeModal, setMode } = useAuthModalStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -73,14 +75,28 @@ export function AuthModal() {
           onChange={(event) => setEmail(event.target.value)}
           required
         />
-        <Input
-          label="Password"
-          type="password"
-          autoComplete={isSignup ? "new-password" : "current-password"}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <label className="block font-body text-sm text-ink">
+          <span className="mb-2 block text-sm font-medium text-ink2">Password</span>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              autoComplete={isSignup ? "new-password" : "current-password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              className="h-11 w-full rounded-xl border border-l-2 border-hairline border-l-transparent bg-card px-4 pr-11 font-body text-sm text-ink outline-none transition-all duration-200 placeholder:text-muted focus:border-clay focus:border-l-clay focus:ring-2 focus:ring-clay/15"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors hover:text-ink"
+              tabIndex={-1}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </label>
         <Button className="w-full" type="submit" loading={loading}>
           {isSignup ? "Create account" : "Sign in"}
         </Button>

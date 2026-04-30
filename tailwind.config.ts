@@ -30,9 +30,9 @@ const config: Config = {
         alert: "#C25450",
       },
       fontFamily: {
-        display: ['"Instrument Serif"', "serif"],
-        body: ['"Geist"', "sans-serif"],
-        mono: ['"Geist Mono"', "monospace"],
+        display: ["var(--font-instrument-serif)", "Georgia", "serif"],
+        body: ["var(--font-geist)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         card: "18px",

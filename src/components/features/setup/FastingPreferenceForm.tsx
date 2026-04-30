@@ -115,9 +115,10 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
           tone="warn"
           title="Fasting not recommended for your context"
           body="Based on the health context you've shared, Karigai will not suggest fasting. Regular, balanced meals are recommended instead."
+          className="mb-1"
         />
       ) : null}
-      <div className="space-y-3">
+      <div className="mb-5 space-y-3">
         <p className="font-body text-sm font-medium text-ink2">Interested in fasting?</p>
         <RadioGroup
           value={interest}
@@ -180,7 +181,7 @@ export function FastingPreferenceForm({ sectionIndex, onSaved, healthContext, in
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl bg-shell/50 p-6">
+        <div className="mt-2 rounded-2xl bg-shell/50 p-6">
           <Clock className="size-8 text-muted" />
           <h3 className="mt-3 font-display text-xl italic text-ink">Regular, balanced meals</h3>
           <p className="mt-2 max-w-xl font-body text-sm leading-relaxed text-muted">

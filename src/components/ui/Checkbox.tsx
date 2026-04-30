@@ -32,11 +32,11 @@ export function Checkbox({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="inline-flex min-h-7 items-center gap-2.5 disabled:opacity-60"
+      className="inline-flex min-h-7 items-start gap-2.5 text-left disabled:opacity-60"
     >
       <span
         className={cn(
-          "grid size-3.5 shrink-0 place-items-center rounded-sm border border-hairline bg-card transition",
+          "mt-0.5 grid size-3.5 shrink-0 place-items-center rounded-sm border border-hairline bg-card transition",
           checked ? checkedTones[tone] : null,
         )}
       >
@@ -53,7 +53,7 @@ export function Checkbox({
           </svg>
         ) : null}
       </span>
-      {label ? <span className="font-body text-sm leading-tight text-ink2">{label}</span> : null}
+      {label ? <span className="font-body text-sm leading-snug text-ink2">{label}</span> : null}
     </button>
   );
 }
