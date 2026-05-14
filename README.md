@@ -16,7 +16,7 @@
 
 <br />
 
-[✨ Live Demo](#) &nbsp;·&nbsp; [📅 Book a Demo](#) &nbsp;·&nbsp; [🐛 Report Bug](https://github.com/charusnehalr/karigai/issues)
+[✨ Live Demo](https://karigai.vercel.app/) &nbsp;·&nbsp; [📅 Book a Demo](#) &nbsp;·&nbsp; [🐛 Report Bug](https://github.com/charusnehalr/karigai/issues)
 
 </div>
 
