@@ -1,0 +1,248 @@
+<mxfile host="app.diagrams.net" modified="2026-05-14T00:00:00.000Z" agent="Karigai" version="21.0.0" type="device">
+  <diagram id="karigai-arch" name="Karigai Architecture (with RAG)">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ==================== CLIENT LAYER ==================== -->
+        <mxCell id="client-group" value="CLIENT (Next.js App Router)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5EFE6;strokeColor=#B8704F;fontStyle=1;fontSize=14;verticalAlign=top;spacingTop=8;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="1440" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dashboard-page" value="Dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="140" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cycle-page" value="Cycle Tracker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="meals-page" value="Meals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="workout-page" value="Workout" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="590" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-page" value="AI Chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="analysis-page" value="Analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="890" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="profile-page" value="Profile / Setup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="90" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="state-layer" value="TanStack Query (Server State) + Zustand (UI State)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFE7DA;strokeColor=#7A7066;fontSize=11;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="140" y="155" width="1020" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== API LAYER ==================== -->
+        <mxCell id="api-group" value="API LAYER (Next.js Route Handlers)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD4C3;strokeColor=#7A8B6F;fontStyle=1;fontSize=14;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="240" width="1440" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-dashboard" value="/api/dashboard" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="110" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-cycle" value="/api/cycle" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="230" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-meals" value="/api/meals/suggest" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="350" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-workout" value="/api/workout/generate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="280" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-chat" value="/api/chat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-analysis" value="/api/analysis" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="730" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-profile" value="/api/profile" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="850" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-setup" value="/api/setup" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="970" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="api-export" value="/api/export" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="280" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow: Client to API -->
+        <mxCell id="arrow-client-api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;strokeColor=#1F1B16;strokeWidth=2;" edge="1" parent="1" source="state-layer" target="api-group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-client-api-label" value="HTTP" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#7A7066;" vertex="1" connectable="0" parent="arrow-client-api">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- ==================== INTELLIGENCE LAYER ==================== -->
+        <mxCell id="intel-group" value="INTELLIGENCE LAYER" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF6EF;strokeColor=#B8704F;fontStyle=1;fontSize=14;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="400" y="390" width="780" height="520" as="geometry" />
+        </mxCell>
+
+        <!-- getUserContext -->
+        <mxCell id="get-context" value="getUserContext(userId)&#xa;Fetches 13 tables for full user profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="560" y="430" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Personalization Rules -->
+        <mxCell id="rules-engine" value="runPersonalizationRules(ctx)&#xa;18 condition flags → rule decisions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD4C3;strokeColor=#7A8B6F;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="560" y="510" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- RAG Layer (NEW) -->
+        <mxCell id="rag-layer" value="★ RAG RETRIEVAL LAYER ★&#xa;&#xa;1. Build query from context + question&#xa;2. Generate embedding (OpenAI)&#xa;3. Vector similarity search (pgvector)&#xa;4. Return top-k knowledge chunks&#xa;&#xa;Domains: PCOS · Cycle Nutrition · Thyroid&#xa;Iron/B12/VitD · Pregnancy · Exercise Science" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontSize=10;fontStyle=0;align=left;spacingLeft=10;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="480" y="590" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="rag-new-badge" value="NEW" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C25450;strokeColor=#C25450;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="590" width="35" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Prompt Engine -->
+        <mxCell id="prompt-engine" value="AI Prompt Engine&#xa;buildChatSystemPrompt(ctx, rules, ragChunks)&#xa;buildMealPrompt(ctx, rules, ragChunks)&#xa;buildWorkoutPrompt(ctx, opts, ragChunks)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B8704F;fontSize=10;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="500" y="760" width="320" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- AI Providers -->
+        <mxCell id="claude" value="Anthropic Claude&#xa;claude-sonnet-4-5&#xa;(Meal Suggestions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C99356;strokeColor=#B8704F;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="860" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="groq" value="Groq (Llama 3.3 70B)&#xa;(Chat + Workout)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7A8B6F;strokeColor=#7A8B6F;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="860" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Safety Layer -->
+        <mxCell id="safety" value="🛡️ Safety Layer&#xa;getSafetyBanners() · Pain ≥ 8 · Bleeding + Dizziness&#xa;ED History + Fasting · Pregnancy + Fasting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8B4A8;strokeColor=#C25450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="880" y="760" width="270" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows within Intelligence Layer -->
+        <mxCell id="arrow-ctx-rules" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1F1B16;strokeWidth=1.5;" edge="1" parent="1" source="get-context" target="rules-engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rules-rag" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=2;" edge="1" parent="1" source="rules-engine" target="rag-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rag-prompt" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=2;" edge="1" parent="1" source="rag-layer" target="prompt-engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-prompt-claude" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1F1B16;strokeWidth=1.5;" edge="1" parent="1" source="prompt-engine" target="claude">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-prompt-groq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1F1B16;strokeWidth=1.5;" edge="1" parent="1" source="prompt-engine" target="groq">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== SUPABASE ==================== -->
+        <mxCell id="supabase-group" value="SUPABASE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F1B16;strokeColor=#1F1B16;fontColor=#FFFFFF;fontStyle=1;fontSize=14;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="390" width="280" height="520" as="geometry" />
+        </mxCell>
+
+        <mxCell id="postgres" value="PostgreSQL&#xa;&#xa;• profiles&#xa;• body_metrics&#xa;• health_context&#xa;• cycle_profile&#xa;• cycle_logs&#xa;• diet_preferences&#xa;• fasting_preferences&#xa;• fitness_preferences&#xa;• goals&#xa;• daily_logs&#xa;• meal_logs&#xa;• workout_logs&#xa;• chat_messages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3A332B;strokeColor=#7A7066;fontColor=#FAF6EF;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="430" width="240" height="230" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pgvector" value="pgvector (NEW)&#xa;&#xa;knowledge_embeddings&#xa;• id&#xa;• content (text)&#xa;• embedding (vector 1536)&#xa;• category&#xa;• source&#xa;• metadata (jsonb)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B8704F;strokeColor=#C99356;fontColor=#FFFFFF;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="680" width="240" height="140" as="geometry" />
+        </mxCell>
+
+        <mxCell id="auth" value="Auth (RLS by auth.uid)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3A332B;strokeColor=#7A7066;fontColor=#FAF6EF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="840" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows: Supabase connections -->
+        <mxCell id="arrow-ctx-db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7A8B6F;strokeWidth=1.5;dashed=1;" edge="1" parent="1" source="get-context" target="postgres">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-ctx-db-label" value="fetch user data" style="edgeLabel;html=1;fontSize=9;fontColor=#7A7066;" vertex="1" connectable="0" parent="arrow-ctx-db">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow-rag-vector" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=2;dashed=1;" edge="1" parent="1" source="rag-layer" target="pgvector">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rag-vector-label" value="vector search" style="edgeLabel;html=1;fontSize=9;fontColor=#B8704F;" vertex="1" connectable="0" parent="arrow-rag-vector">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- Arrow: API to Intelligence -->
+        <mxCell id="arrow-api-intel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1F1B16;strokeWidth=2;" edge="1" parent="1" source="api-chat" target="get-context">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-api-intel-label" value="AI routes" style="edgeLabel;html=1;fontSize=10;fontColor=#7A7066;" vertex="1" connectable="0" parent="arrow-api-intel">
+          <mxGeometry x="-0.3" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- Arrow: API to Supabase (CRUD) -->
+        <mxCell id="arrow-api-db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7A8B6F;strokeWidth=2;" edge="1" parent="1" source="api-dashboard" target="postgres">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-api-db-label" value="CRUD" style="edgeLabel;html=1;fontSize=10;fontColor=#7A7066;" vertex="1" connectable="0" parent="arrow-api-db">
+          <mxGeometry x="-0.3" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- ==================== INGESTION PIPELINE ==================== -->
+        <mxCell id="ingest-group" value="★ KNOWLEDGE INGESTION PIPELINE (NEW)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontStyle=1;fontSize=12;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="960" width="1100" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="source-docs" value="Source Docs&#xa;Research papers&#xa;Clinical guidelines&#xa;Nutrition databases&#xa;Exercise science" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B8704F;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="110" y="990" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="chunker" value="Chunker&#xa;Split by section&#xa;500-800 tokens&#xa;50 token overlap&#xa;Tag with category" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B8704F;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="320" y="990" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="embeddings" value="Embeddings&#xa;OpenAI&#xa;text-embedding-3-small&#xa;1536 dimensions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B8704F;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="530" y="990" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="Store in&#xa;Supabase pgvector&#xa;+ metadata tags" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B8704F;strokeColor=#B8704F;fontColor=#FFFFFF;fontSize=9;align=center;" vertex="1" parent="1">
+          <mxGeometry x="740" y="990" width="150" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Ingestion arrows -->
+        <mxCell id="arrow-src-chunk" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=1.5;" edge="1" parent="1" source="source-docs" target="chunker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-chunk-embed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=1.5;" edge="1" parent="1" source="chunker" target="embeddings">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-embed-store" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#B8704F;strokeWidth=1.5;" edge="1" parent="1" source="embeddings" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== FALLBACK ENGINES ==================== -->
+        <mxCell id="fallback-group" value="FALLBACK / RULES ENGINES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFE7DA;strokeColor=#E8DCC8;fontStyle=1;fontSize=12;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1120" width="1100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="fallback-list" value="cycle-engine.ts (phase estimation)  ·  health-engine.ts (BMI, WHR, BRI, BMR, TDEE)  ·  nutrition-engine.ts (calorie/protein/water targets)  ·  workout-engine.ts (rules-based fallback)  ·  plan-engine.ts" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#7A7066;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1145" width="1060" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DEPLOYMENT ==================== -->
+        <mxCell id="vercel" value="Deployed on Vercel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F1B16;strokeColor=#1F1B16;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="40" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== LEGEND ==================== -->
+        <mxCell id="legend" value="LEGEND" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7A7066;fontStyle=1;fontSize=11;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="390" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-existing" value="Existing components" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFD4C3;strokeColor=#7A8B6F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="420" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-new" value="NEW (RAG addition)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9C8B5;strokeColor=#B8704F;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="455" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-ai" value="AI Provider" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C99356;strokeColor=#B8704F;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="490" width="120" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-safety" value="Safety critical" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8B4A8;strokeColor=#C25450;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="525" width="120" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

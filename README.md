@@ -143,6 +143,16 @@ User Context  (profile + conditions + cycle + diet + fitness + goals)
 
 <br />
 
+### 🏗️ Proposed Architecture (with RAG)
+
+<div align="center">
+
+<img src="docs/karigai-architecture.drawio.png" alt="Karigai Architecture Diagram" width="100%" />
+
+</div>
+
+<br />
+
 ---
 
 ## 🛠️ Tech Stack
