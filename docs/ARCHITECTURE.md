@@ -1,0 +1,334 @@
+# Karigai — Architecture Diagram
+
+## Current Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CLIENT (Next.js App Router)                        │
+│                                                                                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │
+│  │Dashboard │  │  Cycle   │  │  Meals   │  │ Workout  │  │   AI Chat        │   │
+│  │  Page    │  │  Page    │  │  Page    │  │  Page    │  │   Page           │   │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────────┬─────────┘   │
+│       │              │              │              │                  │         │
+│  ┌────┴──────────────┴──────────────┴──────────────┴──────────────────┴────────┐│
+│  │                    TanStack Query (Server State Cache)                      ││
+│  │                    Zustand (UI State Only)                                  ││
+│  └─────────────────────────────────┬───────────────────────────────────────────┘│
+└────────────────────────────────────┼────────────────────────────────────────────┘
+                                     │ HTTP (API Routes)
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           API LAYER (Next.js Route Handlers)                    │
+│                                                                                 │
+│  /api/dashboard    /api/cycle     /api/meals      /api/workout    /api/chat     │
+│  /api/profile      /api/setup     /api/analysis   /api/export     /api/privacy  │
+│  /api/water        /api/db-check  /api/meals/suggest  /api/workout/generate     │
+└───────┬─────────────────────────────────┬───────────────────────────────────────┘
+        │                                 │
+        │  Data CRUD                      │  AI Generation
+        ▼                                 ▼
+┌──────────────────┐        ┌──────────────────────────────────────────────────┐
+│                  │        │              INTELLIGENCE LAYER                  │
+│   SUPABASE       │        │                                                  │
+│                  │        │  ┌─────────────────────────────────────────────┐ │
+│  ┌────────────┐  │        │  │         getUserContext(userId)              │ │
+│  │ PostgreSQL │  │◄───────│  │  Fetches 13 tables for full user profile   │  │
+│  │            │  │        │  └──────────────────┬──────────────────────────┘ │
+│  │ - profiles │  │        │                     │                            │
+│  │ - body_    │  │        │  ┌──────────────────▼──────────────────────────┐ │
+│  │   metrics  │  │        │  │     runPersonalizationRules(ctx)            │ │
+│  │ - health_  │  │        │  │  18 condition flags → rule decisions        │ │
+│  │   context  │  │        │  │  (protein priority, fasting disabled,       │ │
+│  │ - cycle_   │  │        │  │   excluded foods, intensity limits)         │ │
+│  │   profile  │  │        │  └──────────────────┬──────────────────────────┘ │
+│  │ - cycle_   │  │        │                     │                            │
+│  │   logs     │  │        │  ┌──────────────────▼──────────────────────────┐ │
+│  │ - diet_    │  │        │  │         AI Prompt Engine                    │ │
+│  │   prefs    │  │        │  │                                            │  │
+│  │ - fasting_ │  │        │  │  buildChatSystemPrompt(ctx, rules)         │  │
+│  │   prefs    │  │        │  │  buildMealSuggestionPrompt(ctx, rules)     │  │
+│  │ - fitness_ │  │        │  │  buildWorkoutGenerationPrompt(ctx, opts)   │  │
+│  │   prefs    │  │        │  └──────────┬─────────────────┬───────────────┘  │
+│  │ - goals    │  │        │             │                 │                  │
+│  │ - daily_   │  │        │             ▼                 ▼                  │
+│  │   logs     │  │        │  ┌──────────────────┐  ┌──────────────────────┐  │
+│  │ - meal_    │  │        │  │  Anthropic Claude │  │   Groq (Llama 3.3   │  │
+│  │   logs     │  │        │  │  claude-sonnet-4-5│  │   70B Versatile)    │  │
+│  │ - workout_ │  │        │  │                  │  │                      │  │
+│  │   logs     │  │        │  │  Used for:       │  │  Used for:           │  │
+│  │ - chat_    │  │        │  │  • Meal suggest  │  │  • Chat              │  │
+│  │   messages │  │        │  │                  │  │  • Workout generate  │  │
+│  └────────────┘  │        │  └──────────────────┘  └──────────────────────┘  │
+│                  │        │                                                  │
+│  ┌────────────┐  │        │  ┌─────────────────────────────────────────────┐ │
+│  │   Auth     │  │        │  │           Safety Layer                      │ │
+│  │  (RLS by   │  │        │  │  • getSafetyBanners() → hard overrides     │  │
+│  │  auth.uid) │  │        │  │  • Pain ≥ 8, bleeding + dizziness          │  │
+│  └────────────┘  │        │  │  • ED history + fasting, pregnancy + fast  │  │
+│                  │        │  └─────────────────────────────────────────────┘ │
+└──────────────────┘        └──────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          FALLBACK / RULES ENGINES                               │
+│                                                                                 │
+│  cycle-engine.ts     → Phase estimation (menstrual/follicular/ovulation/luteal) │
+│  health-engine.ts    → BMI, WHR, BRI, BMR, TDEE calculations                    │
+│  nutrition-engine.ts → Calorie/protein/water targets from conditions            │
+│  workout-engine.ts   → Rules-based workout if AI fails                          │
+│  plan-engine.ts      → Structured plan generation                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Proposed New Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CLIENT (Next.js App Router)                         │
+│                                                                                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
+│  │Dashboard │  │  Cycle   │  │  Meals   │  │ Workout  │  │   AI Chat        │ │
+│  │  Page    │  │  Page    │  │  Page    │  │  Page    │  │   Page           │ │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────────┬─────────┘ │
+│       │              │              │              │                  │           │
+│  ┌────┴──────────────┴──────────────┴──────────────┴──────────────────┴────────┐ │
+│  │                    TanStack Query + Zustand                                 │ │
+│  └─────────────────────────────────┬───────────────────────────────────────────┘ │
+└────────────────────────────────────┼─────────────────────────────────────────────┘
+                                     │
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           API LAYER (Next.js Route Handlers)                     │
+└───────┬─────────────────────────────────┬───────────────────────────────────────┘
+        │                                 │
+        │  Data CRUD                      │  AI Generation
+        ▼                                 ▼
+┌──────────────────┐        ┌──────────────────────────────────────────────────────┐
+│                  │        │              INTELLIGENCE LAYER                        │
+│   SUPABASE       │        │                                                      │
+│   (PostgreSQL    │        │  ┌─────────────────────────────────────────────────┐  │
+│    + Auth)       │        │  │         getUserContext(userId)                  │  │
+│                  │        │  └──────────────────┬──────────────────────────────┘  │
+│  13 tables       │◄───────│                     │                                 │
+│  (profiles,      │        │  ┌──────────────────▼──────────────────────────────┐  │
+│   health_context,│        │  │     runPersonalizationRules(ctx)                │  │
+│   cycle_logs,    │        │  └──────────────────┬──────────────────────────────┘  │
+│   diet_prefs,    │        │                     │                                 │
+│   etc.)          │        │                     ▼                                 │
+│                  │        │  ┌─────────────────────────────────────────────────┐  │
+│                  │        │  │         ★ RAG RETRIEVAL LAYER (NEW) ★           │  │
+│                  │        │  │                                                 │  │
+│                  │        │  │  1. Build query from user context + question    │  │
+│                  │        │  │  2. Generate embedding (OpenAI text-embedding)  │  │
+│                  │        │  │  3. Vector similarity search in Supabase        │  │
+│                  │        │  │  4. Return top-k relevant knowledge chunks      │  │
+│                  │        │  │                                                 │  │
+│                  │        │  │  Knowledge domains:                             │  │
+│                  │        │  │  • PCOS nutrition research                      │  │
+│                  │        │  │  • Cycle-phase exercise science                 │  │
+│                  │        │  │  • Thyroid & metabolism guidelines              │  │
+│                  │        │  │  • Iron/B12/VitD food source data               │  │
+│                  │        │  │  • Pregnancy nutrition safety                   │  │
+│                  │        │  │  • Eating disorder recovery guidelines          │  │
+│                  │        │  │  • Condition-specific meal patterns             │  │
+│                  │        │  └──────────────────┬──────────────────────────────┘  │
+│  ┌────────────┐  │        │                     │                                 │
+│  │  pgvector  │  │◄───────│  (vector search)    │                                 │
+│  │ extension  │  │        │                     │                                 │
+│  │            │  │        │                     ▼                                 │
+│  │ knowledge_ │  │        │  ┌─────────────────────────────────────────────────┐  │
+│  │ embeddings │  │        │  │         AI Prompt Engine (Enhanced)             │  │
+│  │            │  │        │  │                                                 │  │
+│  │ - id       │  │        │  │  buildChatSystemPrompt(ctx, rules, ragChunks)  │  │
+│  │ - content  │  │        │  │  buildMealPrompt(ctx, rules, ragChunks)        │  │
+│  │ - embedding│  │        │  │  buildWorkoutPrompt(ctx, opts, ragChunks)      │  │
+│  │ - metadata │  │        │  │                                                 │  │
+│  │   (source, │  │        │  │  Prompt now includes:                          │  │
+│  │    topic,  │  │        │  │  • User context (existing)                     │  │
+│  │    cond.)  │  │        │  │  • Personalization rules (existing)            │  │
+│  │ - category │  │        │  │  • ★ Retrieved knowledge chunks (NEW)          │  │
+│  └────────────┘  │        │  └──────────┬─────────────────┬───────────────────┘  │
+│                  │        │             │                 │                       │
+│                  │        │             ▼                 ▼                       │
+│                  │        │  ┌──────────────────┐  ┌──────────────────────┐      │
+│                  │        │  │  Anthropic Claude │  │   Groq (Llama 3.3)  │      │
+│                  │        │  │  (Meals)          │  │   (Chat + Workout)  │      │
+│                  │        │  └──────────────────┘  └──────────────────────┘      │
+│                  │        │                                                      │
+│                  │        │  ┌─────────────────────────────────────────────────┐  │
+│                  │        │  │           Safety Layer (unchanged)              │  │
+│                  │        │  └─────────────────────────────────────────────────┘  │
+└──────────────────┘        └──────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                     ★ KNOWLEDGE INGESTION PIPELINE (NEW) ★                       │
+│                                                                                 │
+│  ┌───────────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐  │
+│  │  Source Docs  │───▶│   Chunker    │───▶│  Embeddings  │───▶│  Supabase   │  │
+│  │               │    │              │    │              │    │  pgvector   │  │
+│  │ • Research    │    │ • Split by   │    │ • OpenAI     │    │             │  │
+│  │   papers      │    │   section    │    │   text-      │    │ • Store     │  │
+│  │ • Clinical    │    │ • 500-800    │    │   embedding- │    │   vectors   │  │
+│  │   guidelines  │    │   tokens     │    │   3-small    │    │ • Metadata  │  │
+│  │ • Nutrition   │    │ • Overlap    │    │              │    │   tags      │  │
+│  │   databases   │    │   50 tokens  │    │              │    │             │  │
+│  │ • Exercise    │    │ • Tag with   │    │              │    │             │  │
+│  │   science     │    │   category   │    │              │    │             │  │
+│  └───────────────┘    └──────────────┘    └──────────────┘    └─────────────┘  │
+│                                                                                │
+│  Categories: pcos | thyroid | cycle_nutrition | pregnancy | iron_deficiency |  │
+│              b12 | vitamin_d | eating_disorder | exercise_science | general    │
+└────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          FALLBACK / RULES ENGINES (unchanged)                   │
+│                                                                                 │
+│  cycle-engine.ts | health-engine.ts | nutrition-engine.ts | workout-engine.ts   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## RAG Data Flow (Detail)
+
+```
+User asks: "What should I eat during my luteal phase with PCOS?"
+
+Step 1: Context Assembly
+┌──────────────────────────────────────────────┐
+│  getUserContext() → cycle_phase: "luteal"    │
+│  healthContext → has_pcos: true              │
+│  dietPreferences → diet_type: "vegetarian"   │
+└──────────────────┬───────────────────────────┘
+                   │
+Step 2: RAG Query Construction
+                   ▼
+┌──────────────────────────────────────────────┐
+│  Query: "luteal phase nutrition PCOS         │
+│          vegetarian protein sources"         │
+│                                              │
+│  Filters: category IN ('pcos',               │
+│           'cycle_nutrition')                 │
+└──────────────────┬───────────────────────────┘
+                   │
+Step 3: Vector Search
+                   ▼
+┌──────────────────────────────────────────────┐
+│  Supabase pgvector: match_knowledge_chunks   │
+│  → similarity search (cosine)                │
+│  → top 5 chunks returned                     │
+│                                              │
+│  Results:                                    │
+│  [0.92] "During the luteal phase, women      │
+│          with PCOS benefit from increased    │
+│          magnesium and complex carbs..."     │
+│  [0.89] "Vegetarian protein sources for      │
+│          PCOS: lentils, tempeh, quinoa..."   │
+│  [0.85] "Luteal phase metabolism increases   │
+│          ~100-300 kcal/day..."               │
+└──────────────────┬───────────────────────────┘
+                   │
+Step 4: Enhanced Prompt
+                   ▼
+┌──────────────────────────────────────────────┐
+│  buildMealSuggestionPrompt(ctx, rules,       │
+│    ragChunks)                                │
+│                                              │
+│  Prompt now includes:                        │
+│  - User's personal context (existing)        │
+│  - Personalization rules (existing)          │
+│  - RETRIEVED KNOWLEDGE:                      │
+│    "Based on research: luteal phase with     │
+│     PCOS benefits from magnesium, complex    │
+│     carbs, vegetarian proteins like..."      │
+└──────────────────┬───────────────────────────┘
+                   │
+Step 5: AI Response
+                   ▼
+┌──────────────────────────────────────────────┐
+│  Claude/Groq generates response grounded in: │
+│  ✓ User's specific conditions & preferences  │
+│  ✓ Evidence-based nutrition research         │
+│  ✓ Cycle-phase-specific guidance             │
+│  ✓ Safety rules still enforced              │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## Tech Choices for RAG
+
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| Vector DB | Supabase pgvector | Using Supabase |
+| Embeddings | OpenAI `text-embedding-3-small` | Best cost/quality ratio, 1536 dims |
+| Chunk size | 500–800 tokens | Fits context window, preserves meaning |
+| Overlap | 50 tokens | Prevents losing info at boundaries |
+| Top-k | 3–5 chunks | Enough context without flooding prompt |
+| Metadata filtering | Category + condition tags | Pre-filters before vector search |
+| Ingestion | Script (one-time + periodic) | `scripts/ingest-knowledge.ts` |
+
+---
+
+## New Environment Variables
+
+```env
+OPENAI_API_KEY=your_openai_key   # For embeddings only
+```
+
+---
+
+## New Database Schema
+
+```sql
+-- Enable pgvector extension
+create extension if not exists vector;
+
+-- Knowledge embeddings table
+create table knowledge_embeddings (
+  id uuid primary key default gen_random_uuid(),
+  content text not null,
+  embedding vector(1536) not null,
+  category text not null,          -- pcos, thyroid, cycle_nutrition, etc.
+  source text,                     -- paper/guideline reference
+  metadata jsonb default '{}',     -- extra tags, condition flags
+  created_at timestamptz default now()
+);
+
+-- Index for fast similarity search
+create index on knowledge_embeddings
+  using ivfflat (embedding vector_cosine_ops)
+  with (lists = 100);
+
+-- RPC function for similarity search
+create or replace function match_knowledge_chunks(
+  query_embedding vector(1536),
+  match_count int default 5,
+  filter_categories text[] default null
+)
+returns table (
+  id uuid,
+  content text,
+  category text,
+  source text,
+  similarity float
+)
+language plpgsql
+as $$
+begin
+  return query
+  select
+    ke.id,
+    ke.content,
+    ke.category,
+    ke.source,
+    1 - (ke.embedding <=> query_embedding) as similarity
+  from knowledge_embeddings ke
+  where (filter_categories is null or ke.category = any(filter_categories))
+  order by ke.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
+```
